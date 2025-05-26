@@ -1,0 +1,69 @@
+# SpitKorean 검색엔진 최적화 설정
+
+# 모든 검색엔진 봇 허용
+User-agent: *
+
+# 허용되는 경로들
+Allow: /
+Allow: /about
+Allow: /features
+Allow: /pricing
+Allow: /blog
+Allow: /contact
+
+# 제한되는 경로들 (개인정보 보호)
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /settings
+Disallow: /api/
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /payment/
+Disallow: /subscription/
+
+# 임시 파일들 차단
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /temp/
+Disallow: /test/
+
+# 중요한 파일들
+Disallow: /.env
+Disallow: /config/
+Disallow: /src/
+
+# 사이트맵 위치 (향후 추가 예정)
+Sitemap: https://spitkorean.com/sitemap.xml
+
+# 특정 봇 설정
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
+
+# 악성 봇 차단
+User-agent: BadBot
+Disallow: /
+
+User-agent: spam*
+Disallow: /
+
+# 소셜 미디어 봇들 허용
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# 페이지 속도 측정 도구들
+User-agent: Lighthouse
+Allow: /
+
+User-agent: PageSpeed
+Allow: /
