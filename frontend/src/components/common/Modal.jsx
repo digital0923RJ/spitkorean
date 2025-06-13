@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { X, AlertTriangle, CheckCircle, Info, AlertCircle } from 'lucide-react'
 import { clsx } from 'clsx'
-import Button from './Button'
+import Button from './Buttom'
 import TranslatableText, { T } from './TranslatableText'
 
 /**

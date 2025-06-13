@@ -13,7 +13,7 @@ import {
   Brain,
   CheckCircle
 } from 'lucide-react';
-import Button, { PrimaryButton, OutlineButton } from '@/components/common/Button';
+import Button, { PrimaryButton, OutlineButton }  from '../../components/common/Buttom.jsx';
 import { T } from '@/components/common/TranslatableText';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 

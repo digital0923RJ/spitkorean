@@ -2,14 +2,23 @@ import os
 import tempfile
 import json
 from tenacity import retry, stop_after_attempt, wait_random_exponential
-import openai
+from openai import AsyncOpenAI
+from anthropic import AsyncAnthropic
 
 class WhisperService:
     """Whisper 서비스 - 음성 인식 및 발음 평가를 위한 서비스"""
     
     def __init__(self):
         """API 키 설정"""
-        openai.api_key = os.getenv("OPENAI_API_KEY")
+        # CHANGE: New way to initialize client
+        self.openai_client = AsyncOpenAI(
+            api_key=os.getenv("OPENAI_API_KEY")
+        )
+        
+        # NEW: Claude client as backup
+        self.claude_client = AsyncAnthropic(
+            api_key=os.getenv("ANTHROPIC_API_KEY")
+        ) if os.getenv("ANTHROPIC_API_KEY") else None
     
     @retry(stop=stop_after_attempt(3), wait=wait_random_exponential(min=1, max=10))
     async def transcribe_audio(self, audio_data):
@@ -29,7 +38,7 @@ class WhisperService:
         try:
             # Whisper API 호출
             with open(temp_file_path, "rb") as audio_file:
-                response = await openai.Audio.atranscribe("whisper-1", audio_file, language="ko")
+                response = await self.openai.Audio.atranscribe("whisper-1", audio_file, language="ko")
             
             return {
                 "text": response["text"],
@@ -60,7 +69,7 @@ class WhisperService:
             {"role": "user", "content": f"원본 텍스트와 음성 인식 결과를 비교하여 발음 정확도를 평가해주세요. 100점 만점으로 점수를 매겨주세요.\n\n원본 텍스트:\n{original_text}\n\n인식된 텍스트:\n{transcribed_text}"}
         ]
         
-        response = await openai.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=messages,
             temperature=0.1,
@@ -137,7 +146,7 @@ class WhisperService:
             {"role": "user", "content": f"다음 음성 인식 결과와 원본 텍스트를 비교하여 발음의 강점, 약점, 개선점을 분석해주세요.\n\n원본 텍스트:\n{original_text}\n\n인식된 텍스트:\n{transcribed_text}"}
         ]
         
-        response = await openai.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=messages,
             temperature=0.3,
@@ -153,7 +162,7 @@ class WhisperService:
         messages.append({"role": "assistant", "content": analysis_text})
         messages.append({"role": "user", "content": "위 분석을 'strengths', 'weaknesses', 'improvements' 필드를 가진 JSON 형식으로 변환해주세요. 각 필드는 문자열 목록이어야 합니다."})
         
-        response = await openai.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=messages,
             temperature=0.1,

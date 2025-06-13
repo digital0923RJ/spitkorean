@@ -10,7 +10,7 @@ import {
   Target,
   TrendingUp
 } from 'lucide-react';
-import Button from '../common/Button';
+import Button from '../common/Buttom';
 
 const SpeedControl = ({ 
   speed = 1.0, 

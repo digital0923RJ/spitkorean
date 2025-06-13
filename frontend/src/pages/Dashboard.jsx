@@ -28,12 +28,12 @@ import {
   Plus
 } from 'lucide-react'
 
-import Button from '@/components/common/Button'
+import Button from '../components/common/Buttom.jsx'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 import TranslatableText, { T, TUI, TBlock } from '@/components/common/TranslatableText'
 import { useAuth } from '@/hooks/useAuth'
 import { useGamification } from '../hooks/useGamification.js'
-import { fetchUserStats } from '../store/slices/authSlice.js'
+//import { fetchUserStats } from '../store/slices/authSlice.js'
 import { PRODUCTS, PRODUCT_LIST } from '@/shared/constants/products'
 import { ROUTES } from '@/shared/constants/routes'
 

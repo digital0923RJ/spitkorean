@@ -26,7 +26,7 @@ import {
 import { useAuth } from '@/hooks/useAuth'
 import { PRODUCTS, PRODUCT_LIST } from '@/shared/constants/products'
 import TranslatableText, { T } from '@/components/common/TranslatableText'
-import Button from '@/components/common/Button'
+import Button from '../common/Buttom.jsx'
 import { HeaderLanguageSelector } from '../common/LanguageSelector.jsx'
 import { ROUTES } from '../../shared/constants/routes.js'
 

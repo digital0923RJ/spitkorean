@@ -13,9 +13,9 @@ import {
   Gift
 } from 'lucide-react';
 import Card from '../common/Card';
-import Button, { PrimaryButton, OutlineButton } from '@/components/common/Button';
+import Button, { PrimaryButton, OutlineButton } from '../common/Buttom';
 import TranslatableText, { T } from '@/components/common/TranslatableText';
-import { formatPrice } from '../../utils/format';
+import { numberUtils } from '../../utils/format';
 import { SUBSCRIPTION_PLANS } from '../../shared/constants/subscriptions';
 import { PRODUCTS } from '../../shared/constants/products';
 
@@ -153,14 +153,14 @@ const PlanCard = ({
             {/* 할인 전 가격 (할인이 있는 경우) */}
             {(discount > 0 || (billingPeriod === 'annual' && annualDiscount > 0)) && (
               <div className="text-sm text-gray-400 line-through">
-                {formatPrice(basePrice)}/<T>월</T>
+                {numberUtils.formatPrice(basePrice)}/<T>월</T>
               </div>
             )}
             
             {/* 현재 가격 */}
             <div className="flex items-baseline justify-center space-x-1">
               <span className="text-3xl font-bold text-gray-900">
-                {formatPrice(finalPrice)}
+                {numberUtils.formatPrice(finalPrice)}
               </span>
               <span className="text-gray-600">
                 /{billingPeriod === 'annual' ? <T>월</T> : <T>월</T>}
@@ -170,7 +170,7 @@ const PlanCard = ({
             {/* 연간 구독 정보 */}
             {billingPeriod === 'annual' && (
               <div className="text-sm text-green-600">
-                <T>연간 {formatPrice(yearlyTotal)} • 월 {formatPrice(monthlySavings)} 절약</T>
+                <T>연간 {numberUtils.formatPrice(yearlyTotal)} • 월 {numberUtils.formatPrice(monthlySavings)} 절약</T>
               </div>
             )}
           </div>

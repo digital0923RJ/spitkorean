@@ -1,0 +1,123 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Redis - OBRIGATÓRIO para Celery
+  redis:
+    image: redis:7-alpine
+    container_name: spitkorean-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend - USA SEU DOCKERFILE
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile  # Seu Dockerfile
+    container_name: spitkorean-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - MONGO_URI=${MONGO_URI}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app/backend
+      - ./shared:/app/shared
+      - ./credentials.json:/app/credentials.json
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - spitkorean-network
+
+  # Celery Worker - USA A MESMA IMAGEM DO BACKEND
+  celery-worker:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: spitkorean-celery
+    command: celery -A app.main.celery worker --loglevel=info --concurrency=${CELERY_CONCURRENCY:-4}
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - MONGO_URI=${MONGO_URI}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app/backend
+      - ./shared:/app/shared
+      - ./credentials.json:/app/credentials.json
+    depends_on:
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - spitkorean-network
+
+  # Celery Beat (agendador de tarefas)
+  celery-beat:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: spitkorean-celery-beat
+    command: celery -A app.main.celery beat --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app/backend
+      - ./shared:/app/shared
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - spitkorean-network
+
+  # Flower (monitoramento Celery) - OPCIONAL
+  flower:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: spitkorean-flower
+    command: celery -A app.main.celery flower --port=5555
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - spitkorean-network
+
+volumes:
+  redis_data:
+
+networks:
+  spitkorean-network:
+    driver: bridge

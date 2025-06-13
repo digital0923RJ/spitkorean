@@ -6,6 +6,7 @@ from app.models.drama import Drama
 from app.models.user import User
 from app.utils.response import api_response, error_response
 from app.services.gpt_service import GPTService
+from app.utils.auth_decorator import require_auth, no_auth
 
 drama_routes = Blueprint('drama', __name__, url_prefix='/api/v1/drama')
 
@@ -13,7 +14,9 @@ drama_routes = Blueprint('drama', __name__, url_prefix='/api/v1/drama')
 gpt_service = GPTService()
 
 @drama_routes.route('/sentences', methods=['GET'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def get_sentences():
     """드라마 문장 목록 조회 API"""
     user_id = request.user_id
@@ -106,7 +109,9 @@ async def get_sentences():
     }, "드라마 문장을 성공적으로 조회했습니다.")
 
 @drama_routes.route('/check', methods=['POST'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def check_sentence():
     """문장 구성 확인 API"""
     user_id = request.user_id
@@ -201,7 +206,9 @@ async def check_sentence():
     }, "문장 확인이 완료되었습니다.")
 
 @drama_routes.route('/progress', methods=['GET'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def get_progress():
     """진행 상황 조회 API"""
     user_id = request.user_id
@@ -276,7 +283,9 @@ async def get_progress():
     }, "진행 상황을 성공적으로 조회했습니다.")
 
 @drama_routes.route('/usage', methods=['GET'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def get_usage():
     """사용량 조회 API"""
     user_id = request.user_id

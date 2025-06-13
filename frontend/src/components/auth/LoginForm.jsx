@@ -5,13 +5,14 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { Mail, Lock, LogIn } from 'lucide-react'
 
-import Button, { PrimaryButton, OutlineButton } from '@/components/common/Button'
+import Button, { PrimaryButton, OutlineButton } from '../common/Buttom.jsx'
 import TranslatableText, { T } from '@/components/common/TranslatableText'
 import Input from '@components/common/Input'
 import { useAuth } from '@hooks/useAuth'
 
 // 유효성 검사 import
-import { validators, getErrorMessage } from '../../utils/validation.js'
+// Removed getErrorMessage from import because it does not exist in validation.js
+import { validators } from '../../utils/validation.js' 
 
 // 유효성 검사 스키마 (validation.js의 validators 사용)
 const loginSchema = yup.object({

@@ -70,7 +70,7 @@ const initialState = {
     questions: [],
     currentQuestionIndex: 0,
     answers: {}, // { questionId: selectedOptionIndex }
-    bookmarkedQuestions: new Set(),
+    bookmarkedQuestions: [],
     timeRemaining: null,
     isActive: false,
     level: 3,
@@ -210,17 +210,17 @@ const testSlice = createSlice({
     // 북마크 관리
     toggleBookmark: (state, action) => {
       const questionId = action.payload;
-      const bookmarks = state.currentSession.bookmarkedQuestions;
+      const bookmarks = state.currentSession.bookmarkedQuestions.indexOf(questionId);
       
-      if (bookmarks.has(questionId)) {
-        bookmarks.delete(questionId);
+      if (index != 1) {
+        state.currentSession.bookmarkedQuestions.splice(index, 1);
       } else {
-        bookmarks.add(questionId);
+        state.currentSession.bookmarkedQuestions.push(questionId);
       }
     },
     
     clearBookmarks: (state) => {
-      state.currentSession.bookmarkedQuestions.clear();
+      state.currentSession.bookmarkedQuestions = [];
     },
     
     // 타이머 관리

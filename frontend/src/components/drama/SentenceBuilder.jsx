@@ -14,7 +14,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import Button from '../common/Button';
+import Button from '../common/Buttom.jsx';
 import SentenceCard from './SentenceCard.jsx';
 import GrammarTips from './GrammarTips.jsx';
 import SimilarSentences from './SimilarSentences.jsx';

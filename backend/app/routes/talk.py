@@ -6,7 +6,8 @@ from datetime import datetime, timedelta  # ✅ timedelta도 추가
 from app.utils.response import api_response, error_response
 from app.services.gpt_service import GPTService
 from app.services.emotion_service import EmotionService
-from app.models.common import XPAction, Common, ActivityType 
+from app.models.common import XPAction, Common
+from app.utils.auth_decorator import require_auth, no_auth
 
 
 # ✅ Logger 설정 추가
@@ -18,7 +19,9 @@ gpt_service = GPTService()
 emotion_service = EmotionService()
 
 @talk_routes.route('/chat', methods=['POST'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def chat():
     user_id = request.user_id
     data = await request.json
@@ -152,7 +155,9 @@ async def chat():
     }, "대화 응답이 생성되었습니다")
 
 @talk_routes.route('/sessions', methods=['GET'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def get_sessions():
     user_id = request.user_id
     
@@ -177,7 +182,9 @@ async def get_sessions():
     }, "세션 목록을 성공적으로 조회했습니다")
 
 @talk_routes.route('/session/<session_id>', methods=['GET'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def get_session(session_id):
     user_id = request.user_id
     
@@ -210,7 +217,9 @@ async def get_session(session_id):
     }, "세션 정보를 성공적으로 조회했습니다")
 
 @talk_routes.route('/usage', methods=['GET'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def get_usage():
     user_id = request.user_id
     

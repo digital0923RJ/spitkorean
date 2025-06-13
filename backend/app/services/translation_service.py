@@ -5,7 +5,8 @@ import aiohttp
 from redis.asyncio import Redis  # 최신 Redis 라이브러리 사용
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
-import openai  # ChatGPT를 사용하기 위한 openai 라이브러리
+from openai import AsyncOpenAI  # ChatGPT를 사용하기 위한 openai 라이브러리
+from anthropic import AsyncAnthropic
 
 class TranslationService:
     """번역 서비스 클래스"""
@@ -19,8 +20,15 @@ class TranslationService:
         self.cache_expiration = 7 * 24 * 60 * 60  # 7일 캐시
         
         # OpenAI API 키 설정
-        self.openai_api_key = os.environ.get('OPENAI_API_KEY')
-        openai.api_key = self.openai_api_key
+        # CHANGE: New way to initialize client
+        self.openai_client = AsyncOpenAI(
+            api_key=os.getenv("OPENAI_API_KEY")
+        )
+        
+        # NEW: Claude client as backup
+        self.claude_client = AsyncAnthropic(
+            api_key=os.getenv("ANTHROPIC_API_KEY")
+        ) if os.getenv("ANTHROPIC_API_KEY") else None
         
         # 영어 기본 번역 (클라이언트에서 제공)
         self.base_en_translations = self._load_base_translations()
@@ -153,7 +161,7 @@ class TranslationService:
         
         try:
             # openai.ChatCompletion을 사용한 비동기 호출
-            completion = await openai.ChatCompletion.acreate(
+            completion = await self.openai_client.chat.completions.create(
                 model="gpt-4",  # 또는 사용 가능한 모델
                 messages=[
                     {"role": "system", "content": "You are a helpful language learning assistant that provides accurate and natural translations."},

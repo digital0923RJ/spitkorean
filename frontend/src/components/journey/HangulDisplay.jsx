@@ -9,7 +9,7 @@ import {
   ChevronUp,
   ChevronDown
 } from 'lucide-react';
-import Button from '../common/Button';
+import Button from '../common/Buttom.jsx';
 import Modal from '../common/Modal.jsx';
 import { T } from '../common/TranslatableText';
 

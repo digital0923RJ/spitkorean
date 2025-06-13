@@ -23,11 +23,12 @@ import {
   selectLanguageErrors,
   selectLanguageSettings,
   selectCurrentLanguageInfo
-} from '../store/slices/languageSlice.js';
+} from '../store/slices/languageSlice.jsx';
 import googleTranslateService from '../services/googleTranslate.js';
 import openaiService from '../services/openai.js';
 
 // 🆕 Storage 유틸리티 import
+//removed
 import { getStoredLanguage, setStoredLanguage } from '../utils/storage.js';
 
 /**

@@ -8,7 +8,7 @@ import { Mail, ArrowLeft, CheckCircle, AlertCircle, Lock } from 'lucide-react'
 
 // 컴포넌트
 import Input from '../common/Input.jsx'
-import Button from '../common/Button.jsx'
+import Button from '../common/Buttom.jsx'
 import TranslatableText, { T } from '../common/TranslatableText'
 
 // 유효성 검사

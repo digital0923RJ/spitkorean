@@ -1,212 +1,203 @@
-// frontend/src/components/common/TranslatableText.jsx
-import React, { useState, useEffect, useMemo } from 'react';
-import { useLanguage } from '../../hooks/useLanguage.js';
+///simplify solution
+
+"use client"
+
+import React, { useState, useEffect, useMemo } from "react"
+import { useLanguage } from "../../hooks/useLanguage.js"
 
 /**
- * 자동 번역 텍스트 컴포넌트
- * 사용자의 언어 설정에 따라 실시간으로 번역
- * 
- * @param {string} children - 번역할 텍스트
- * @param {string} className - CSS 클래스
- * @param {string} fallback - 텍스트가 없을 때 표시할 기본값
- * @param {string} as - 렌더링할 HTML 태그 (기본값: span)
- * @param {string} context - 번역 컨텍스트 (general, ui, feedback)
- * @param {boolean} cached - 캐시 사용 여부 (기본값: true)
- * @param {function} onTranslated - 번역 완료 콜백
- * @param {object} ...props - 기타 HTML 속성
+ * Automatically translatable text component
+ * Translates in real-time based on the user's language settings
  */
-const TranslatableText = ({ 
-  children, 
-  className = '', 
-  fallback = '',
-  as: Component = 'span',
-  context = 'general',
+const TranslatableText = ({
+  children,
+  className = "",
+  fallback = "",
+  as: Component = "span",
+  context = "general",
   cached = true,
   onTranslated,
-  ...props 
+  ...props
 }) => {
-  const { 
-    currentLanguage, 
-    translate, 
+  const languageHook = useLanguage()
+
+  // Safety check for the hook
+  const {
+    currentLanguage = "ko",
+    translate,
     translateUIText,
-    isTranslating: globalIsTranslating 
-  } = useLanguage();
-  
-  const [translatedText, setTranslatedText] = useState('');
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [error, setError] = useState(null);
+    isTranslating: globalIsTranslating = false,
+  } = languageHook || {}
 
-  // 원본 텍스트 추출
+  const [translatedText, setTranslatedText] = useState("")
+  const [isTranslating, setIsTranslating] = useState(false)
+  const [error, setError] = useState(null)
+
+  // Extract original text with safety checks
   const originalText = useMemo(() => {
-    return children || fallback || '';
-  }, [children, fallback]);
+    if (typeof children === "string") {
+      return children
+    }
+    if (React.isValidElement(children) && typeof children.props?.children === "string") {
+      return children.props.children
+    }
+    return fallback || ""
+  }, [children, fallback])
 
-  // 번역 실행
+  // Translation function with robust error handling
   useEffect(() => {
     const translateContent = async () => {
-      // 텍스트가 없거나 한국어인 경우 번역하지 않음
-      if (!originalText.trim() || currentLanguage === 'ko') {
-        setTranslatedText(originalText);
-        setError(null);
-        return;
+      // Initial safety checks
+      if (!originalText.trim()) {
+        setTranslatedText("")
+        setError(null)
+        return
+      }
+
+      if (currentLanguage === "ko") {
+        setTranslatedText(originalText)
+        setError(null)
+        return
+      }
+
+      // Check if translation functions exist
+      if (!translate && !translateUIText) {
+        console.warn("Translation functions are not available")
+        setTranslatedText(originalText)
+        setError(null) // Not treated as an error, just use original text
+        return
       }
 
       try {
-        setIsTranslating(true);
-        setError(null);
-        
-        let translated;
-        
+        setIsTranslating(true)
+        setError(null)
+
+        let translated = originalText
+
         switch (context) {
-          case 'ui':
-            // UI 텍스트는 별도 번역 서비스 사용
-            translated = await translateUIText({ text: originalText });
-            translated = translated?.text || originalText;
-            break;
-            
-          case 'feedback':
-            // 학습 피드백은 OpenAI 사용 (useLanguage에서 처리)
-            translated = await translate(originalText, currentLanguage, 'ko');
-            break;
-            
-          case 'general':
+          case "ui":
+            if (typeof translateUIText === "function") {
+              const result = await translateUIText({ text: originalText })
+              translated = result?.text || originalText
+            }
+            break
+
+          case "feedback":
+          case "general":
           default:
-            // 일반 텍스트는 Google Translate 사용
-            translated = await translate(originalText, currentLanguage, 'ko');
-            break;
+            if (typeof translate === "function") {
+              translated = await translate(originalText, currentLanguage, "ko")
+            }
+            break
         }
-        
-        setTranslatedText(translated);
-        
-        // 번역 완료 콜백 실행
-        if (onTranslated) {
-          onTranslated(translated, originalText);
+
+        setTranslatedText(translated || originalText)
+
+        // Callback when translation completes
+        if (onTranslated && typeof onTranslated === "function") {
+          onTranslated(translated || originalText, originalText)
         }
-        
       } catch (err) {
-        console.error('번역 오류:', err);
-        setError(err.message || '번역에 실패했습니다.');
-        setTranslatedText(originalText); // 실패 시 원문 표시
+        console.error("Translation error:", err)
+        const errorMessage = err instanceof Error ? err.message : "Unknown translation error"
+        setError(errorMessage)
+        setTranslatedText(originalText) // Fallback to original text
       } finally {
-        setIsTranslating(false);
+        setIsTranslating(false)
       }
-    };
+    }
 
-    translateContent();
-  }, [originalText, currentLanguage, context, translate, translateUIText, onTranslated]);
+    translateContent()
+  }, [originalText, currentLanguage, context, translate, translateUIText, onTranslated])
 
-  // 로딩 상태 클래스
-  const loadingClass = (isTranslating || globalIsTranslating) ? 'opacity-75 animate-pulse' : '';
-  
-  // 에러 상태 클래스
-  const errorClass = error ? 'text-red-500' : '';
+  // CSS classes with safety checks
+  const loadingClass = isTranslating || globalIsTranslating ? "opacity-75 animate-pulse" : ""
+  const errorClass = error ? "text-red-500" : ""
+  const combinedClassName = [className, loadingClass, errorClass].filter(Boolean).join(" ")
 
   return (
-    <Component 
-      className={`${className} ${loadingClass} ${errorClass}`.trim()}
-      title={error ? `번역 오류: ${error}` : undefined}
-      {...props}
-    >
-      {translatedText || originalText}
+    <Component className={combinedClassName} title={error ? `Translation error: ${error}` : undefined} {...props}>
+      {translatedText || originalText || fallback}
     </Component>
-  );
-};
+  )
+}
 
 /**
- * 인라인 번역 컴포넌트 (짧은 텍스트용)
- * 사용법: <T>안녕하세요</T>
+ * Inline translation component (short texts)
  */
 export const T = ({ children, ...props }) => (
   <TranslatableText as="span" {...props}>
     {children}
   </TranslatableText>
-);
+)
 
 /**
- * UI 텍스트 번역 컴포넌트 (버튼, 메뉴 등)
- * 사용법: <TUI>저장</TUI>
+ * Translation component for UI texts (buttons, menus, etc.)
  */
 export const TUI = ({ children, ...props }) => (
   <TranslatableText as="span" context="ui" {...props}>
     {children}
   </TranslatableText>
-);
+)
 
 /**
- * 학습 피드백 번역 컴포넌트
- * 사용법: <TFeedback>문법이 틀렸습니다</TFeedback>
+ * Translation component for learning feedback
  */
 export const TFeedback = ({ children, ...props }) => (
   <TranslatableText as="div" context="feedback" {...props}>
     {children}
   </TranslatableText>
-);
+)
 
 /**
- * 블록 레벨 번역 컴포넌트 (긴 텍스트용)
- * 사용법: <TBlock as="p">긴 설명 텍스트...</TBlock>
+ * Block-level translation component (long texts)
  */
 export const TBlock = ({ children, as = "div", ...props }) => (
   <TranslatableText as={as} {...props}>
     {children}
   </TranslatableText>
-);
+)
 
 /**
- * 조건부 번역 컴포넌트
- * 특정 조건에서만 번역을 실행
+ * Conditional translation component
  */
-export const TConditional = ({ 
-  children, 
-  condition = true, 
-  fallbackText = '',
-  ...props 
-}) => {
+export const TConditional = ({ children, condition = true, fallbackText = "", ...props }) => {
   if (!condition) {
-    return fallbackText || children;
+    return fallbackText || children
   }
-  
-  return (
-    <TranslatableText {...props}>
-      {children}
-    </TranslatableText>
-  );
-};
+
+  return <TranslatableText {...props}>{children}</TranslatableText>
+}
 
 /**
- * 지연 번역 컴포넌트
- * 사용자가 hover하거나 focus할 때만 번역
+ * Lazy translation component (on demand)
  */
-export const TLazy = ({ 
-  children, 
-  trigger = 'hover', // 'hover', 'focus', 'click'
-  ...props 
-}) => {
-  const [shouldTranslate, setShouldTranslate] = useState(false);
-  
+export const TLazy = ({ children, trigger = "hover", className = "", ...props }) => {
+  const [shouldTranslate, setShouldTranslate] = useState(false)
+
   const handleTrigger = () => {
     if (!shouldTranslate) {
-      setShouldTranslate(true);
+      setShouldTranslate(true)
     }
-  };
-  
+  }
+
   const triggerProps = {
-    [trigger === 'hover' ? 'onMouseEnter' : trigger === 'focus' ? 'onFocus' : 'onClick']: handleTrigger
-  };
-  
+    [trigger === "hover" ? "onMouseEnter" : trigger === "focus" ? "onFocus" : "onClick"]: handleTrigger,
+  }
+
   if (!shouldTranslate) {
     return (
-      <span {...triggerProps} className="cursor-pointer" {...props}>
+      <span {...triggerProps} className={`cursor-pointer ${className}`} {...props}>
         {children}
       </span>
-    );
+    )
   }
-  
+
   return (
-    <TranslatableText {...props}>
+    <TranslatableText className={className} {...props}>
       {children}
     </TranslatableText>
-  );
-};
+  )
+}
 
-export default TranslatableText;
+export default TranslatableText

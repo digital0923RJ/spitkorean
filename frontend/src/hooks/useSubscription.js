@@ -43,9 +43,9 @@ import {
   selectHasActiveSubscription,
   selectTotalMonthlyCost,
   selectSubscriptionByProduct
-} from '../store/slices/subscriptionSlice.js';
+} from '../store/slices/subscriptionSlice.jsx';
 import stripeService from '../services/stripe.js';
-import { PRODUCTS, BUNDLES, calculateBundlePrice, getProductById } from '../shared/constants/products.js';
+import { BUNDLES, calculateBundlePrice, getProductById } from '../shared/constants/products.js';
 import { toast } from 'react-hot-toast';
 
 /**

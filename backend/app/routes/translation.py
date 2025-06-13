@@ -8,11 +8,14 @@ from datetime import datetime
 
 from app.utils.response import api_response, error_response
 from app.services.translation_service import TranslationService
+from app.utils.auth_decorator import require_auth, no_auth
 
 translation_routes = Blueprint('translation', __name__, url_prefix='/api/v1/translation')
 
 @translation_routes.route('/translate', methods=['POST'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def translate_text():
     """텍스트 번역 API
     

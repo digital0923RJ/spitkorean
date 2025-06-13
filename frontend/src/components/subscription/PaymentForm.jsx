@@ -15,8 +15,8 @@ import {
 // 컴포넌트
 import Card from '../common/Card';
 import Button, { PrimaryButton } from '../common/Button';
-import Input from '../common/Input';
 import TranslatableText, { T } from '../common/TranslatableText';
+import Input from '../common/Input';
 // Redux
 import { 
   createSubscription, 
@@ -129,7 +129,8 @@ const PaymentForm = ({
     const newErrors = {};
 
     // 이메일
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    //better email validation
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
     if (!paymentData.email || !emailRegex.test(paymentData.email)) {
       newErrors.email = '유효한 이메일을 입력해주세요';
     }
@@ -231,13 +232,18 @@ const PaymentForm = ({
       const result = await dispatch(createSubscription(subscriptionData)).unwrap();
       
       // 3D Secure 등 추가 인증이 필요한 경우
-      if (result.client_secret) {
-        const { error: confirmError } = await stripe.confirmCardPayment(result.client_secret);
-        
-        if (confirmError) {
-          throw new Error(confirmError.message);
-        }
-      }
+      if (result.client_secret)
+        { const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment( result.client_secret, 
+          { payment_method: paymentMethod.id } );
+
+  if (confirmError) {
+    throw new Error(confirmError.message);
+  }
+
+  if (paymentIntent?.status !== "succeeded") {
+    throw new Error("Payment was not processed successfully");
+  }
+}
       
       // 결제 성공
       onPaymentSuccess?.({

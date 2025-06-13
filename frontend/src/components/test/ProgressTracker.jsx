@@ -17,7 +17,7 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
-import Button from '../common/Button';
+import Button from '../common/Buttom.jsx';
 import { numberUtils, dateUtils } from '../../utils/format.js';
 import { T } from '../common/TranslatableText.jsx';
 

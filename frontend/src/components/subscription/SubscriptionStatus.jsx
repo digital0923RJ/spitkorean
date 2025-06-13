@@ -21,11 +21,11 @@ import {
 } from 'lucide-react';
 // 컴포넌트
 import Card from '../common/Card';
-import Button, { PrimaryButton, OutlineButton } from '../common/Button';
+import Button, { PrimaryButton, OutlineButton } from '../common/Buttom';
 import Modal from '../common/Modal';
 import TranslatableText, { T } from '../common/TranslatableText';
 // 유틸리티
-import { formatDate, formatPrice } from '../../utils/format';
+//import { formatDate, formatPrice } from '../../utils/format';
 // 상수
 import { SUBSCRIPTION_PLANS } from '../../shared/constants/subscriptions';
 import { PRODUCTS } from '../../shared/constants/products';
