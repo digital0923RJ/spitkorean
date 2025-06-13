@@ -12,7 +12,7 @@ import {
   Check,
   Shuffle
 } from 'lucide-react';
-import Button from '../common/Button';
+import Button from '../common/Buttom';
 
 const SimilarSentences = ({ 
   sentences = [],

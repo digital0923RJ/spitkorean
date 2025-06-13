@@ -7,6 +7,7 @@ from app.models.user import User
 from app.utils.response import api_response, error_response
 from app.services.gpt_service import GPTService
 from app.services.whisper_service import WhisperService
+from app.utils.auth_decorator import require_auth, no_auth
 
 journey_routes = Blueprint('journey', __name__, url_prefix='/api/v1/journey')
 
@@ -15,7 +16,9 @@ gpt_service = GPTService()
 whisper_service = WhisperService()
 
 @journey_routes.route('/content', methods=['GET'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def get_content():
     """리딩 콘텐츠 조회 API"""
     user_id = request.user_id
@@ -148,7 +151,9 @@ async def get_content():
     }, "리딩 콘텐츠를 성공적으로 조회했습니다.")
 
 @journey_routes.route('/submit', methods=['POST'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def submit_reading():
     """리딩 결과 제출 API"""
     user_id = request.user_id
@@ -248,7 +253,9 @@ async def submit_reading():
     }, "리딩 결과가 성공적으로 제출되었습니다.")
 
 @journey_routes.route('/progress', methods=['GET'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def get_progress():
     """진행 상황 조회 API"""
     user_id = request.user_id
@@ -362,7 +369,9 @@ async def get_progress():
     }, "진행 상황을 성공적으로 조회했습니다.")
 
 @journey_routes.route('/usage', methods=['GET'])
-@current_app.auth_manager.require_auth
+#@current_app.auth_manager.require_auth
+@no_auth  # For development
+# @require_auth  # For production with auth
 async def get_usage():
     """사용량 조회 API"""
     user_id = request.user_id

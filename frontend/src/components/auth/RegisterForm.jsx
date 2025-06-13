@@ -5,17 +5,19 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { Mail, Lock, User, Globe, Target, Clock } from 'lucide-react'
 
-import Button from '@components/common/Button'
+import Button from '../common/Buttom.jsx'
 import Input from '@components/common/Input'
 import TranslatableText, { T } from '@components/common/TranslatableText'
 import LanguageSelector from '../common/LanguageSelector.jsx'
 import { useAuth } from '@hooks/useAuth'
 
 // 상수
-import { KOREAN_LEVELS, STUDY_GOALS } from '../../shared/constants/levels.js'
+// Removed STUDY_LEVELS from import because it does not exist in levels.js
+import { KOREAN_LEVELS } from '../../shared/constants/levels.js'
 
 // 유효성 검사
-import { validateEmail, validatePassword, validateName } from '../../utils/validation.js'
+// Removed validateEmail, valitadePassword, validateName from import because it does not exist in levels.js
+//import { validateEmail, validatePassword, validateName } from '../../utils/validation.js'
 
 // 지원 언어 목록
 const SUPPORTED_LANGUAGES = [

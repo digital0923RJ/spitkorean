@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 // 컴포넌트 import
-import Button from '../common/Button';
+import Button from '../common/Buttom';
 import EmotionIndicator from './EmotionIndicator';
 
 // 유틸리티 import

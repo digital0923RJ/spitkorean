@@ -19,7 +19,7 @@ import {
   ChevronUp,
   ChevronDown
 } from 'lucide-react';
-import Button from '../common/Button';
+import Button from '../common/Buttom';
 import LoadingSpinner from '../common/LoadingSpinner';
 import SpeedControl from './SpeedControl';
 import HangulDisplay from './HangulDisplay';

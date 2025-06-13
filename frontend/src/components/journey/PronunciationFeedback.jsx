@@ -14,7 +14,7 @@ import {
   ThumbsUp,
   ThumbsDown
 } from 'lucide-react';
-import Button from '../common/Button';
+import Button from '../common/Buttom.jsx';
 
 // 유틸리티 import
 import { numberUtils } from '../../utils/format.js';

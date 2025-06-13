@@ -23,11 +23,11 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import Button from '../../components/common/Button';
+import Button from '../../components/common/Buttom.jsx';
 import Card from '../../components/common/Card';
 import SubscriptionStatus from '../../components/subscription/SubscriptionStatus';
 import { PRODUCTS } from '../../shared/constants/products';
-import { KOREAN_LEVELS, LANGUAGES } from '../../shared/constants/levels';
+//import { KOREAN_LEVELS, LANGUAGES } from '../../shared/constants/levels';
 // 상수
 import { ROUTES } from '../../shared/constants/routes.js';
 // 유틸리티

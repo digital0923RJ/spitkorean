@@ -28,9 +28,11 @@ import Profile from '@pages/profile/Profile'
 import Settings from '@pages/profile/Settings'
 
 // 기타 페이지
-import Leaderboard from '@pages/Leaderboard'
-import Progress from '@pages/Progress'
-import Help from '@pages/Help'
+// Module not found error: The imported page/component does not exist or the import path is incorrect.
+// This causes the app to fail rendering and results in a blank page.
+//import Leaderboard from '@pages/Leaderboard'
+//import Progress from '@pages/Progress'
+//import Help from '@pages/Help'
 
 // 인증 관련
 import { checkAuthStatus } from '@store/slices/authSlice'
@@ -124,13 +126,13 @@ function App() {
           <Plans />
         </PublicLayout>
       } />
-      
+      {/*
       <Route path="/help" element={
         <PublicLayout>
           <Help />
         </PublicLayout>
       } />
-      
+      *}
       {/* 보호된 라우트 - 사이드바 포함 */}
       <Route path="/dashboard" element={
         <ProtectedRoute>
@@ -155,7 +157,7 @@ function App() {
           </AuthenticatedLayout>
         </ProtectedRoute>
       } />
-      
+      {/*
       <Route path="/leaderboard" element={
         <ProtectedRoute>
           <AuthenticatedLayout>
@@ -163,7 +165,8 @@ function App() {
           </AuthenticatedLayout>
         </ProtectedRoute>
       } />
-      
+      */}
+      {/*
       <Route path="/progress" element={
         <ProtectedRoute>
           <AuthenticatedLayout>
@@ -171,7 +174,7 @@ function App() {
           </AuthenticatedLayout>
         </ProtectedRoute>
       } />
-      
+      */}
       {/* 상품별 라우트 - 사이드바 포함 */}
       <Route path="/talk/*" element={
         <ProtectedRoute>
