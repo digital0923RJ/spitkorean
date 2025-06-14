@@ -7,16 +7,15 @@ from app.services.gpt_service import GPTService
 from app.models.user import User
 from app.models.subscription import Subscription
 from app.utils.response import api_response, error_response
-from app.utils.auth_decorator import require_auth, no_auth
-
+from app.core.auth import require_auth
 gpt_service = GPTService()
 
 common_routes = Blueprint('common', __name__, url_prefix='/api/v1/common')
 
 
 @common_routes.route('/streak', methods=['POST'])
-#@current_app.auth_manager.require_auth
-@no_auth  # For development
+@require_auth
+#@no_auth  # For development
 # @require_auth  # For production with auth
 async def update_streak():
     """연속 학습 일수 업데이트 API"""
@@ -38,75 +37,8 @@ async def update_streak():
 # New routes created because the frontend was calling a route that did not exist
 
 ##endpoint for production
-#@common_routes.route('/translate', methods=['POST'])
-#@current_app.auth_manager.require_auth
-#@no_auth  # For development
-# @require_auth  # For production with auth
-#async def translate():
-#    try:
-#        data = await request.json
-#        text = data.get('text', '')
-#        target_language = data.get('target_language') or data.get('target', 'ko')
-#        source_language = data.get('source_language') or data.get('source', 'ko')
-#
-#        print(f"🔍 Translate request: {text[:50]}... -> {target_language}")
-#
-#        if not text:
-#            return api_response(None, "Missing 'text' parameter", status=400)
-#
-#        # Mock user_id para desenvolvimento
-#        request.user_id = "mock_user_id"
-#
-#       
-#        from app.services.gpt_service import GPTService
-#        gpt_service = GPTService()
-#
-#      
-#        language_names = {
-#            'ko': 'Korean',
-#            'en': 'English', 
-#            'pt': 'Portuguese',
-#            'es': 'Spanish',
-#            'fr': 'French',
-#            'de': 'German',
-#            'ja': 'Japanese',
-#            'zh': 'Chinese'
-#        }
-#
-#        target_lang_name = language_names.get(target_language, target_language)
-#        
-#        
-#        prompt = f"Translate the following text to {target_lang_name}. Only return the translation, nothing else:\n\n{text}"
-#
-#        translated_text = await gpt_service.generate_response([
-#            {"role": "user", "content": prompt}
-#        ], "beginner", "en")
-#
-#       
-##
-#        return api_response({
-#            "original_text": text,
-#            "translated_text": translated_text,
-#            "target_language": target_language,
-#            "source_language": source_language
-#        }, "Translation completed successfully")
-#        
-#    except Exception as e:
-#        print(f"❌ Translation error: {str(e)}")
-#        import traceback
-#        traceback.print_exc()
-
-#        return api_response({
-#            "original_text": text,
-#            "translated_text": text,
-#            "target_language": target_language,
-#            "source_language": source_language
-#        }, "Translation failed, returning original text")
-
-##for development whitout api key
-
 @common_routes.route('/translate', methods=['POST'])
-@no_auth
+@require_auth  # For production with auth
 async def translate():
     try:
         data = await request.json
@@ -119,21 +51,35 @@ async def translate():
         if not text:
             return api_response(None, "Missing 'text' parameter", status=400)
 
-        # Tradução simples para alguns termos comuns (apenas para demonstração)
-        translations = {
-            'ko-pt': {
-                '대시보드': 'Dashboard',
-                '리더보드': 'Leaderboard',
-                '학습 코스': 'Cursos de Aprendizado',
-                '로그인': 'Login',
-                '무료 시작하기': 'Começar Gratuitamente',
-                '한국어': 'Coreano'
-            }
+        request.user_id = "mock_user_id"
+#
+#       
+        from app.services.gpt_service import GPTService
+        gpt_service = GPTService()
+
+      
+        language_names = {
+            'ko': 'Korean',
+            'en': 'English', 
+            'pt': 'Portuguese',
+            'es': 'Spanish',
+            'fr': 'French',
+            'de': 'German',
+            'ja': 'Japanese',
+            'zh': 'Chinese'
         }
+#
+        target_lang_name = language_names.get(target_language, target_language)
+#        
+        
+        prompt = f"Translate the following text to {target_lang_name}. Only return the translation, nothing else:\n\n{text}"
+#
+        translated_text = await gpt_service.generate_response([
+            {"role": "user", "content": prompt}
+        ], "beginner", "en")
 
-        key = f"{source_language}-{target_language}"
-        translated_text = translations.get(key, {}).get(text, f"[{target_language}] {text}")
-
+#       
+##
         return api_response({
             "original_text": text,
             "translated_text": translated_text,
@@ -145,19 +91,17 @@ async def translate():
         print(f"❌ Translation error: {str(e)}")
         import traceback
         traceback.print_exc()
-        
+
         return api_response({
-            "original_text": text if 'text' in locals() else "",
-            "translated_text": text if 'text' in locals() else "",
-            "target_language": target_language if 'target_language' in locals() else "ko",
-            "source_language": source_language if 'source_language' in locals() else "ko"
+            "original_text": text,
+            "translated_text": text,
+            "target_language": target_language,
+            "source_language": source_language
         }, "Translation failed, returning original text")
 
 
 @common_routes.route('/translate-ui', methods=['POST'])
-#@current_app.auth_manager.require_auth
-@no_auth  # For development
-# @require_auth  # For production with auth
+@require_auth  
 async def translate_ui():
     """UI elements translation API"""
     data = await request.json
@@ -193,9 +137,7 @@ async def translate_ui():
 
 
 @common_routes.route('/gamification', methods=['GET'])
-#@current_app.auth_manager.require_auth
-@no_auth  # For development
-# @require_auth  # For production with auth
+@require_auth 
 async def get_gamification():
     """게임화 데이터 조회 API"""
     user_id = request.user_id
@@ -223,9 +165,7 @@ async def get_gamification():
     return api_response(response_data, "게임화 정보를 성공적으로 조회했습니다")
 
 @common_routes.route('/league-ranking', methods=['GET'])
-#@current_app.auth_manager.require_auth
-@no_auth  # For development
-# @require_auth  # For production with auth
+@require_auth 
 async def get_league_ranking():
     """리그 랭킹 조회 API"""
     user_id = request.user_id
@@ -414,9 +354,7 @@ def calculate_bundle_price(products):
     return total_price * (1 - discount)
 
 @common_routes.route('/subscription/subscribe', methods=['POST'])
-#@current_app.auth_manager.require_auth
-@no_auth  # For development
-# @require_auth  # For production with auth
+@require_auth  
 async def subscribe():
     """구독 신청 API"""
     user_id = request.user_id
@@ -540,9 +478,7 @@ async def subscribe():
         }, "구독이 성공적으로 처리되었습니다", 201)
 
 @common_routes.route('/subscription/status', methods=['GET'])
-#@current_app.auth_manager.require_auth
-@no_auth  # For development
-# @require_auth  # For production with auth
+@require_auth  
 async def get_subscription_status():
     """사용자 구독 상태 조회 API"""
     user_id = request.user_id
@@ -571,9 +507,7 @@ async def get_subscription_status():
     }, "구독 상태를 성공적으로 조회했습니다")
 
 @common_routes.route('/subscription/cancel', methods=['POST'])
-#@current_app.auth_manager.require_auth
-@no_auth  # For development
-# @require_auth  # For production with auth
+@require_auth  
 async def cancel_subscription():
     """구독 취소 API"""
     user_id = request.user_id
@@ -614,9 +548,7 @@ async def cancel_subscription():
         return error_response("구독 취소에 실패했습니다", 500)
 
 @common_routes.route('/subscription/history', methods=['GET'])
-#@current_app.auth_manager.require_auth
-@no_auth  # For development
-# @require_auth  # For production with auth
+@require_auth  
 async def get_subscription_history():
     """구독 히스토리 조회 API"""
     user_id = request.user_id
