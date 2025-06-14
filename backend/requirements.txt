@@ -6,7 +6,7 @@
 quart==0.18.4
 hypercorn==0.14.4
 quart-cors==0.7.0  # CORS 처리를 위해 추가
-blinker>=1.9.0  # Flask 호환성을 위해 최신 버전 명시
+blinker==1.5.0  # Flask 호환성을 위해 최신 버전 명시
 
 # 비동기 데이터베이스
 motor==3.3.1  # MongoDB 비동기 드라이버 (main.py에서 사용)
@@ -34,7 +34,7 @@ bcrypt==4.1.2  # auth.py에서 비밀번호 해싱
 
 # HTTP 클라이언트 및 네트워킹
 httpx==0.24.1  # 비동기 HTTP 요청
-aiohttp>=3.8.4,<4.0.0  # 추가 HTTP 클라이언트 지원
+aiohttp===3.8.6  # 추가 HTTP 클라이언트 지원
 requests==2.31.0  # 동기 HTTP 요청 (일부 서비스에서 필요)
 
 # 오디오/이미지 처리
@@ -48,7 +48,7 @@ tenacity==8.2.3  # 재시도 로직 (@retry 데코레이터)
 python-multipart==0.0.6  # 멀티파트 폼 데이터 처리
 structlog==23.2.0  # 구조화된 로깅
 aiofiles==23.2.1  # 비동기 파일 처리
-werkzeug>=3.1.3  # 유틸리티 함수
+werkzeug>=2.3.7  # 유틸리티 함수
 
 # 이메일 및 알림
 email-validator==2.1.0  # 이메일 유효성 검증 (validators.py용)
