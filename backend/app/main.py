@@ -17,6 +17,7 @@ from app.routes.test import test_routes
 from app.routes.journey import journey_routes
 from app.routes.common import common_routes
 from app.routes.translation import translation_routes
+from app.routes.webhook import webhooks
 
 load_dotenv()
 
@@ -155,6 +156,7 @@ app.register_blueprint(test_routes)
 app.register_blueprint(journey_routes)
 app.register_blueprint(common_routes)
 app.register_blueprint(translation_routes)
+app.register_blueprint(webhooks)
 
 # 기본 라우트
 @app.route("/")
