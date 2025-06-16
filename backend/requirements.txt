@@ -3,15 +3,19 @@
 # ====================================
 
 # 웹 프레임워크
-quart==0.18.4
+quart==0.19.4
 hypercorn==0.14.4
 quart-cors==0.7.0  # CORS 처리를 위해 추가
-blinker==1.5.0  # Flask 호환성을 위해 최신 버전 명시
+blinker>=1.6.0  # Flask 호환성을 위해 최신 버전 명시
 
 # 비동기 데이터베이스
 motor==3.3.1  # MongoDB 비동기 드라이버 (main.py에서 사용)
 pymongo==4.5.0
 
+anthropic>=0.7.0
+
+
+stripe>=7.0.0
 # 캐시 및 작업 큐
 celery==5.3.1
 redis[hiredis]==5.0.1  # EventBus, CacheManager, UsageLimiter에서 사용
@@ -48,7 +52,6 @@ tenacity==8.2.3  # 재시도 로직 (@retry 데코레이터)
 python-multipart==0.0.6  # 멀티파트 폼 데이터 처리
 structlog==23.2.0  # 구조화된 로깅
 aiofiles==23.2.1  # 비동기 파일 처리
-werkzeug>=2.3.7  # 유틸리티 함수
 
 # 이메일 및 알림
 email-validator==2.1.0  # 이메일 유효성 검증 (validators.py용)
