@@ -24,14 +24,14 @@ import toast from 'react-hot-toast'
 
 // 스토리지에서 저장된 언어 정보 가져오기
 const getStoredLanguage = () => {
-  const storedUILang = storage.user.getUILanguage()
-  const storedNativeLang = storage.user.getNativeLanguage()
-  
+  const storedUILang = storage.user.getUILanguage();
+  const storedNativeLang = storage.user.getNativeLanguage();
+
   return {
-    ui: isValidLanguage(storedUILang) ? storedUILang : detectBrowserLanguage(),
-    native: isValidLanguage(storedNativeLang) ? storedNativeLang : detectBrowserLanguage()
-  }
-}
+    ui: isValidLanguage(storedUILang) ? storedUILang : 'en',
+    native: isValidLanguage(storedNativeLang) ? storedNativeLang : 'en'
+  };
+};
 
 // 언어 정보를 스토리지에 저장
 const setStoredLanguage = (type, language) => {

@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useAuth } from '@/hooks/useAuth'
 
 // 레이아웃 컴포넌트
-import Header from '@components/layout/Header'
 import Sidebar from '@components/layout/Sidebar'
 import Footer from '@components/layout/Footer'
 
@@ -68,7 +67,6 @@ function App() {
   // 인증이 필요한 페이지 레이아웃
   const AuthenticatedLayout = ({ children }) => (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header />
       
       <div className="flex flex-1">
         <Sidebar 
@@ -90,7 +88,6 @@ function App() {
   // 공개 페이지 레이아웃
   const PublicLayout = ({ children }) => (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header />
       
       <main className="flex-1">
         {children}
