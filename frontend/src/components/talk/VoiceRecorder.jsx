@@ -14,10 +14,10 @@ import {
 import toast from 'react-hot-toast';
 
 // 훅 import
-import { useVoice } from '../../hooks/useVoice';
+//import { useVoice } from '../../hooks/useVoice';
 
 // 컴포넌트 import
-import Button from '../common/Button';
+import Button from '../common/Buttom';
 
 const VoiceRecorder = ({ 
   onVoiceMessage, 

@@ -17,12 +17,12 @@ import {
 // 컴포넌트
 import Card from '../common/Card';
 import PlanCard from './PlanCard';
-import Button, { PrimaryButton, OutlineButton } from '@/components/common/Button';
+import Button, { PrimaryButton, OutlineButton } from '../common/Buttom';
 import TranslatableText, { T } from '@/components/common/TranslatableText';
 // 상수
 import { SUBSCRIPTION_PLANS } from '../../shared/constants/subscriptions';
 // 유틸리티
-import { formatPrice } from '../../utils/format';
+//import { formatPrice } from '../../utils/format';
 
 const PlanComparison = ({ 
   plans = [],

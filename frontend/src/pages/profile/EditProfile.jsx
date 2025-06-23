@@ -20,7 +20,7 @@ import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Dropdown from '../../components/common/Dropdown';
 import Card from '../../components/common/Card';
-import { KOREAN_LEVELS, LANGUAGES } from '../../shared/constants/levels';
+//import { KOREAN_LEVELS, LANGUAGES } from '../../shared/constants/levels';
 // 액션
 import { updateUserProfile } from '../../store/slices/authSlice.js';
 // 유틸리티

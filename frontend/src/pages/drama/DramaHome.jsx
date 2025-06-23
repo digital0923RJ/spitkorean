@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 // 컴포넌트
-import Button from '../../components/common/Button';
+import Button from '../../components/common/Buttom.jsx';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { T } from '../../components/common/TranslatableText';
 import SentenceBuilder from '../../components/drama/SentenceBuilder.jsx';

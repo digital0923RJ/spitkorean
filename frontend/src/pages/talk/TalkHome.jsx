@@ -10,7 +10,7 @@ import {
   Info,
   ChevronRight
 } from 'lucide-react';
-import Button from '../../components/common/Button';
+import Button from '../../components/common/Buttom.jsx';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { T } from '@/components/common/TranslatableText';
 import ChatInterface from '../../components/talk/ChatInterface.jsx';

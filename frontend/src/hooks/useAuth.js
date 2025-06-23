@@ -19,7 +19,7 @@ import {
 import { authEvents } from '@api/auth'
 
 // 🆕 유틸리티 import
-import { getAuthToken, removeAuthToken } from '../utils/auth.js'
+//import { getAuthToken, removeAuthToken } from '../utils/auth.js'
 
 // 🆕 상수 import
 import { ROUTES } from '../shared/constants/routes.js'

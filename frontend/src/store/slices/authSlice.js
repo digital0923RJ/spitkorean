@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { authAPI, authEvents } from '@/api/auth'
-import { setAuthToken, removeAuthToken, getAuthToken } from '@/utils/auth'
+//import { setAuthToken, removeAuthToken, getAuthToken } from '@/utils/auth'
 import { tokenUtils, sessionUtils, validateAuthState } from '@/utils/auth'
 import toast from 'react-hot-toast'
 

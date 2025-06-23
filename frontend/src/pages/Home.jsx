@@ -21,7 +21,7 @@ import {
   TrendingUp
 } from 'lucide-react'
 
-import Button from '@components/common/Button'
+import Button from '../components/common/Buttom.jsx'
 import TranslatableText, { 
   T, 
   TUI, 

@@ -1,5 +1,6 @@
 import os
-import openai
+from openai import AsyncOpenAI
+from anthropic import AsyncAnthropic
 import json
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
@@ -8,7 +9,15 @@ class GPTService:
     
     def __init__(self):
         """API 키 설정"""
-        openai.api_key = os.getenv("OPENAI_API_KEY")
+        # CHANGE: New way to initialize client
+        self.openai_client = AsyncOpenAI(
+            api_key=os.getenv("OPENAI_API_KEY")
+        )
+        
+        # NEW: Claude client as backup
+        self.claude_client = AsyncAnthropic(
+            api_key=os.getenv("ANTHROPIC_API_KEY")
+        ) if os.getenv("ANTHROPIC_API_KEY") else None
     
     @retry(stop=stop_after_attempt(3), wait=wait_random_exponential(min=1, max=10))
     async def generate_response(self, chat_history, user_level, native_language, session_id=None):
@@ -52,7 +61,7 @@ class GPTService:
         ] + formatted_history
         
         # GPT 호출
-        response = await openai.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model="gpt-4-1106-preview",  # 또는 gpt-4, gpt-3.5-turbo 등 사용 가능한 모델
             messages=messages,
             temperature=0.7,
@@ -83,7 +92,7 @@ class GPTService:
             {"role": "user", "content": f"{prompt}\n각 문장은 대화체로, 실제 드라마에서 사용될 수 있는 자연스러운 문장이어야 합니다. {count}개의 문장을 생성해주세요."}
         ]
         
-        response = await openai.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=messages,
             temperature=0.8,
@@ -136,7 +145,7 @@ class GPTService:
             {"role": "user", "content": f"다음 한국어 문장과 유사한 구조를 가진 {count}개의 다른 문장을 생성해주세요. 문법과 어휘 수준은 {level} 레벨에 맞춰주세요.\n\n원본 문장: {original_sentence}"}
         ]
         
-        response = await openai.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=messages,
             temperature=0.7,
@@ -186,7 +195,7 @@ class GPTService:
             {"role": "user", "content": f"다음 한국어 문장에서 {level} 레벨에 중요한 문법 포인트를 3개 추출해주세요. 각 포인트는 '문법 요소', '설명', '예시'를 포함해야 합니다.\n\n문장: {sentence}"}
         ]
         
-        response = await openai.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=messages,
             temperature=0.3,
@@ -205,7 +214,7 @@ class GPTService:
             messages.append({"role": "assistant", "content": content})
             messages.append({"role": "user", "content": "위 문법 포인트를 JSON 형식으로 변환해주세요. 각 포인트는 'element', 'explanation', 'example' 키를 가진 객체여야 합니다."})
             
-            response = await openai.ChatCompletion.acreate(
+            response = await self.openai_client.chat.completions.create(
                 model="gpt-4-1106-preview",
                 messages=messages,
                 temperature=0.1,
@@ -269,7 +278,7 @@ class GPTService:
             {"role": "user", "content": f"{prompt}\n\n각 문제는 'id', 'question', 'options', 'answer', 'explanation' 필드를 JSON 형식으로 가져야 합니다. options는 4개의 선택지를 포함해야 합니다."}
         ]
         
-        response = await openai.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=messages,
             temperature=0.7,
@@ -380,7 +389,7 @@ class GPTService:
             {"role": "user", "content": f"다음은 한국어 시험에서 틀린 문제들입니다. 이를 바탕으로 학습자의 주요 취약점을 5가지 이내로 분석해주세요.\n\n{wrong_answers}"}
         ]
         
-        response = await openai.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=messages,
             temperature=0.3,
@@ -439,7 +448,7 @@ class GPTService:
             {"role": "user", "content": f"{prompt}\n\n이 텍스트는 한국어 학습자의 {level} 레벨에 맞게 생성되어야 합니다."}
         ]
         
-        response = await openai.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=messages,
             temperature=0.7,
@@ -467,7 +476,7 @@ class GPTService:
             {"role": "user", "content": f"다음 한국어 텍스트에 대한 읽기 가이드를 생성해주세요. 주요 어휘, 문법 포인트, 발음 팁을 포함해야 합니다. 가이드는 {level} 레벨 학습자에게 적합해야 합니다.\n\n{content}"}
         ]
         
-        response = await openai.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=messages,
             temperature=0.5,
@@ -483,7 +492,7 @@ class GPTService:
         messages.append({"role": "assistant", "content": guide_text})
         messages.append({"role": "user", "content": "위 가이드를 'vocabulary', 'grammar', 'pronunciation', 'cultural_notes' 필드를 가진 JSON 형식으로 변환해주세요. 각 필드는 리스트 형태여야 합니다."})
         
-        response = await openai.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=messages,
             temperature=0.1,

@@ -7,7 +7,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 
 import App from './App.jsx'
-import { store } from './store/index.js'
+import store from './store/index.js'
 import './styles/index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(

@@ -93,7 +93,7 @@ const initialState = {
   session: {
     isActive: false,
     currentSentenceIndex: 0,
-    completedSentences: new Set(),
+    completedSentences: [],
     startTime: null,
     totalSentences: 0
   },
@@ -216,7 +216,9 @@ const journeySlice = createSlice({
     
     markSentenceCompleted: (state, action) => {
       const index = action.payload;
-      state.session.completedSentences.add(index);
+      if(!state.session.completedSentences.includes(index)){
+        state.session.completedSentences.push(index);
+      } 
     },
     
     // 재생 컨트롤

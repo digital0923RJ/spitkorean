@@ -6,6 +6,7 @@ from app.models.test import Test
 from app.models.user import User
 from app.utils.response import api_response, error_response
 from app.services.gpt_service import GPTService
+from app.core.auth import require_auth
 
 test_routes = Blueprint('test', __name__, url_prefix='/api/v1/test')
 
@@ -13,7 +14,7 @@ test_routes = Blueprint('test', __name__, url_prefix='/api/v1/test')
 gpt_service = GPTService()
 
 @test_routes.route('/questions', methods=['GET'])
-@current_app.auth_manager.require_auth
+@require_auth  # For production with auth
 async def get_questions():
     """TOPIK 문제 조회 API"""
     user_id = request.user_id
@@ -137,7 +138,7 @@ async def get_questions():
     }, "TOPIK 문제를 성공적으로 조회했습니다.")
 
 @test_routes.route('/submit', methods=['POST'])
-@current_app.auth_manager.require_auth
+@require_auth  # For production with auth
 async def submit_answers():
     """테스트 답안 제출 API"""
     user_id = request.user_id
@@ -254,7 +255,7 @@ async def submit_answers():
     }, "테스트 답안이 성공적으로 제출되었습니다.")
 
 @test_routes.route('/results', methods=['GET'])
-@current_app.auth_manager.require_auth
+@require_auth  # For production with auth
 async def get_results():
     """테스트 결과 조회 API"""
     user_id = request.user_id
@@ -326,7 +327,7 @@ async def get_results():
     }, "테스트 결과를 성공적으로 조회했습니다.")
 
 @test_routes.route('/usage', methods=['GET'])
-@current_app.auth_manager.require_auth
+@require_auth  # For production with auth
 async def get_usage():
     """사용량 조회 API"""
     user_id = request.user_id

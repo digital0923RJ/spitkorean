@@ -11,7 +11,7 @@ import {
   MessageCircle,
   TrendingUp
 } from 'lucide-react';
-import Button from '../../components/common/Button';
+import Button from '../../components/common/Buttom.jsx';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ChatInterface from '../../components/talk/ChatInterface.jsx';
 import { T } from '@/components/common/TranslatableText';

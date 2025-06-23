@@ -1,6 +1,6 @@
 import { jwtDecode } from 'jwt-decode'
 import { PRODUCTS } from '@shared/constants/products'
-import { LEVELS } from '@shared/constants/levels'
+//import { LEVELS } from '@shared/constants/levels'
 import { SUPPORTED_LANGUAGES } from '@shared/constants/languages'
 
 /**

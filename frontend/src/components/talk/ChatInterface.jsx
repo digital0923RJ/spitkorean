@@ -11,11 +11,11 @@ import {
 import toast from 'react-hot-toast';
 
 // 훅 import
-import { useChat } from '../../hooks/useChat';
-import { useVoice } from '../../hooks/useVoice';
+//import { useChat } from '../../hooks/useChat';
+//import { useVoice } from '../../hooks/useVoice';
 
 // 컴포넌트 import
-import Button from '../common/Button';
+import Button from '../common/Buttom';
 import LoadingSpinner from '../common/LoadingSpinner';
 import MessageBubble from './MessageBubble';
 import VoiceRecorder from './VoiceRecorder';

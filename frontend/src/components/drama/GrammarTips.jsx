@@ -11,7 +11,7 @@ import {
   Volume2,
   ArrowRight
 } from 'lucide-react';
-import Button from '../common/Button';
+import Button from '../common/Buttom.jsx';
 import Card, { CardHeader, CardBody, CardFooter } from '../common/Card.jsx';
 import TranslatableText, { T, TFeedback, TUI } from '../common/TranslatableText.jsx';
 

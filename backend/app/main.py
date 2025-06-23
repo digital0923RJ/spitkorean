@@ -17,6 +17,7 @@ from app.routes.test import test_routes
 from app.routes.journey import journey_routes
 from app.routes.common import common_routes
 from app.routes.translation import translation_routes
+from app.routes.webhook import webhooks
 
 load_dotenv()
 
@@ -137,7 +138,9 @@ async def unauthorized(error):
 async def add_cors_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    #modification to allow cors
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    response.headers["Access-Control-Max-Age"] = "86400"
     return response
 
 # OPTIONS 요청 처리
@@ -153,6 +156,7 @@ app.register_blueprint(test_routes)
 app.register_blueprint(journey_routes)
 app.register_blueprint(common_routes)
 app.register_blueprint(translation_routes)
+app.register_blueprint(webhooks)
 
 # 기본 라우트
 @app.route("/")
