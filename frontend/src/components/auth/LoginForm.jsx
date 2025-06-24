@@ -9,10 +9,10 @@ import Button, { PrimaryButton, OutlineButton } from '../common/Buttom.jsx'
 import TranslatableText, { T } from '@/components/common/TranslatableText'
 import Input from '@components/common/Input'
 import { useAuth } from '@hooks/useAuth'
+import validation from '../../utils/validation.js'
 
 // 유효성 검사 import
-// Removed getErrorMessage from import because it does not exist in validation.js
-import { validators } from '../../utils/validation.js' 
+const { validators, getErrorMessage } = validation;
 
 // 유효성 검사 스키마 (validation.js의 validators 사용)
 const loginSchema = yup.object({

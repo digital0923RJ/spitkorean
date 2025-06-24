@@ -135,6 +135,7 @@ export const googleAuthAPI = {
   // 구글 로그인 URL 생성
   getGoogleAuthUrl: () => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+    console.log('Client ID:', clientId)
     const redirectUri = `${window.location.origin}/auth/google/callback`
     const scope = 'openid email profile'
     

@@ -12,29 +12,14 @@ import LanguageSelector from '../common/LanguageSelector.jsx'
 import { useAuth } from '@hooks/useAuth'
 
 // 상수
-// Removed STUDY_LEVELS from import because it does not exist in levels.js
-import { KOREAN_LEVELS } from '../../shared/constants/levels.js'
+import { KOREAN_LEVELS, STUDY_GOALS } from '../../shared/constants/levels.js'
 
 // 유효성 검사
-// Removed validateEmail, valitadePassword, validateName from import because it does not exist in levels.js
+//import validation from '../../utils/validation.js'
+//const { validateEmail, validatePassword, validateName } = validation;
 //import { validateEmail, validatePassword, validateName } from '../../utils/validation.js'
 
 // 지원 언어 목록
-const SUPPORTED_LANGUAGES = [
-  { code: 'en', name: '영어 (English)' },
-  { code: 'ja', name: '일본어 (日本語)' },
-  { code: 'zh', name: '중국어 (中文)' },
-  { code: 'vi', name: '베트남어 (Tiếng Việt)' },
-  { code: 'es', name: '스페인어 (Español)' },
-  { code: 'fr', name: '프랑스어 (Français)' },
-  { code: 'hi', name: '힌디어 (हिन्दी)' },
-  { code: 'th', name: '태국어 (ไทย)' },
-  { code: 'de', name: '독일어 (Deutsch)' },
-  { code: 'mn', name: '몽골어 (Монгол)' },
-  { code: 'ar', name: '아랍어 (العربية)' },
-  { code: 'pt', name: '포르투갈어 (Português)' },
-  { code: 'tr', name: '터키어 (Türkçe)' }
-]
 
 // 유효성 검사 스키마 (커스텀 검증 함수 사용)
 const registerSchema = yup.object({
@@ -74,6 +59,25 @@ const registerSchema = yup.object({
     .boolean()
     .oneOf([true], '이용약관에 동의해주세요')
 })
+
+export const validateEmail = (email) => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return regex.test(email)
+}
+
+export const validatePassword = (password) => {
+  const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)
+  return {
+    isValid,
+    message: isValid
+      ? ''
+      : '비밀번호는 대문자, 소문자, 숫자를 포함하여 최소 8자 이상이어야 합니다.'
+  }
+}
+
+export const validateName = (name) => {
+  return name?.length >= 2 && name?.length <= 50
+}
 
 /**
  * 번역 지원 회원가입 폼 컴포넌트
@@ -136,14 +140,17 @@ const RegisterForm = ({
 
   // 다음 단계로
   const nextStep = async () => {
-    if (step === 1) {
-      const isValid = await validateStep1()
-      if (isValid) setStep(2)
-    } else if (step === 2) {
-      const isValid = await validateStep2()
-      if (isValid) setStep(3)
-    }
+  if (step === 1) {
+    const isValid = await validateStep1();
+    console.log('Step 1 valid:', isValid);
+    if (isValid) setStep(2);
+  } else if (step === 2) {
+    const isValid = await validateStep2();
+    console.log('Step 2 valid:', isValid);
+    if (isValid) setStep(3);
   }
+};
+
 
   // 이전 단계로
   const prevStep = () => {
@@ -328,6 +335,7 @@ const RegisterForm = ({
                 <T>모국어</T>
               </label>
               <LanguageSelector
+                value={watch('nativeLanguage')}
                 variant="default"
                 showFlag={true}
                 showName={true}
@@ -357,15 +365,15 @@ const RegisterForm = ({
               </label>
               <div className="space-y-2">
                 {KOREAN_LEVELS.map((level) => (
-                  <label key={level.value} className="flex items-center">
+                  <label key={level.key} className="flex items-center">
                     <input
                       type="radio"
-                      value={level.value}
+                      value={level.key}
                       {...register('koreanLevel')}
                       className="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
                     />
                     <span className="ml-2 text-sm">
-                      <T>{level.label}</T>
+                      <T>{level.name}</T>
                     </span>
                   </label>
                 ))}
@@ -416,12 +424,12 @@ const RegisterForm = ({
                 {...register('dailyStudyTime')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value={15}><T>15분</T></option>
-                <option value={30}><T>30분</T></option>
-                <option value={45}><T>45분</T></option>
-                <option value={60}><T>1시간</T></option>
-                <option value={90}><T>1시간 30분</T></option>
-                <option value={120}><T>2시간</T></option>
+                <option value={15}>15분</option>
+                <option value={30}>30분</option>
+                <option value={45}>45분</option>
+                <option value={60}>1시간</option>
+                <option value={90}>1시간 30분</option>
+                <option value={120}>2시간</option>
               </select>
             </div>
 

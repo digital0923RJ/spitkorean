@@ -33,7 +33,6 @@ import LoadingSpinner from '@/components/common/LoadingSpinner'
 import TranslatableText, { T, TUI, TBlock } from '@/components/common/TranslatableText'
 import { useAuth } from '@/hooks/useAuth'
 import { useGamification } from '../hooks/useGamification.js'
-//import { fetchUserStats } from '../store/slices/authSlice.js'
 import { PRODUCTS, PRODUCT_LIST } from '@/shared/constants/products'
 import { ROUTES } from '@/shared/constants/routes'
 
@@ -85,11 +84,6 @@ const Dashboard = () => {
         setLoading(true)
         
         // 병렬로 데이터 로딩
-        await Promise.all([
-          dispatch(fetchUserStats()),
-          refreshStats(),
-          refreshLeaderboard(currentLeague)
-        ])
         
         // 일일 로그인 XP 추가 (하루에 한 번만)
         const lastLoginDate = localStorage.getItem('lastLoginDate')

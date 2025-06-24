@@ -6,13 +6,13 @@ from celery import Celery
 from app.config import Config
 
 # Celery 앱 초기화
-celery_app = Celery('spitkorean')
-celery_app.config_from_object(Config)
+celery = Celery('spitkorean')
+celery.config_from_object(Config)
 
 # 태스크 불러오기
-from app.tasks import audio_tasks, analysis_tasks, notification_tasks, content_tasks
+from . import audio_tasks, analysis_tasks, notification_tasks, content_tasks
 
-__all__ = ['celery_app',
+__all__ = ['celery',
     'audio_tasks',
     'analysis_tasks', 
     'notification_tasks',

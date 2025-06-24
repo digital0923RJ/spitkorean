@@ -454,6 +454,19 @@ export const validateAuthState = (user, token) => {
   }
 }
 
+export const getAuthToken = () => {
+  return localStorage.getItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)
+}
+
+export const setAuthToken = (token) => {
+  localStorage.setItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY, token)
+}
+
+export const removeAuthToken = () => {
+  localStorage.removeItem(AUTH_CONSTANTS.ACCESS_TOKEN_KEY)
+}
+
+
 // 기본 내보내기
 export default {
   tokenUtils,

@@ -412,32 +412,46 @@ export const getNextLevel = (currentLevel, type = 'conversation') => {
   return null
 }
 
+
+
+
 // 백워드 호환성을 위한 기존 구조 (TalkHome.jsx에서 사용)
-export const KOREAN_LEVELS = {
-  talk: {
-    beginner: {
-      name: CONVERSATION_LEVELS.BEGINNER.name,
-      description: CONVERSATION_LEVELS.BEGINNER.talk.conversationStyle,
-      topics: CONVERSATION_LEVELS.BEGINNER.topics.join(', '),
-      speed: CONVERSATION_LEVELS.BEGINNER.talk.speed,
-      languageRatio: CONVERSATION_LEVELS.BEGINNER.talk.languageRatio,
-      goals: CONVERSATION_LEVELS.BEGINNER.talk.goals
-    },
-    intermediate: {
-      name: CONVERSATION_LEVELS.INTERMEDIATE.name,
-      description: CONVERSATION_LEVELS.INTERMEDIATE.talk.conversationStyle,
-      topics: CONVERSATION_LEVELS.INTERMEDIATE.topics.join(', '),
-      speed: CONVERSATION_LEVELS.INTERMEDIATE.talk.speed,
-      languageRatio: CONVERSATION_LEVELS.INTERMEDIATE.talk.languageRatio,
-      goals: CONVERSATION_LEVELS.INTERMEDIATE.talk.goals
-    },
-    advanced: {
-      name: CONVERSATION_LEVELS.ADVANCED.name,
-      description: CONVERSATION_LEVELS.ADVANCED.talk.conversationStyle,
-      topics: CONVERSATION_LEVELS.ADVANCED.topics.join(', '),
-      speed: CONVERSATION_LEVELS.ADVANCED.talk.speed,
-      languageRatio: CONVERSATION_LEVELS.ADVANCED.talk.languageRatio,
-      goals: CONVERSATION_LEVELS.ADVANCED.talk.goals
-    }
+export const KOREAN_LEVELS = [
+  {
+    key: 'beginner',
+    name: CONVERSATION_LEVELS.BEGINNER.name,
+    description: CONVERSATION_LEVELS.BEGINNER.talk.conversationStyle,
+    topics: CONVERSATION_LEVELS.BEGINNER.topics.join(', '),
+    speed: CONVERSATION_LEVELS.BEGINNER.talk.speed,
+    languageRatio: CONVERSATION_LEVELS.BEGINNER.talk.languageRatio,
+    goals: CONVERSATION_LEVELS.BEGINNER.talk.goals
+  },
+  {
+    key: 'intermediate',
+    name: CONVERSATION_LEVELS.INTERMEDIATE.name,
+    description: CONVERSATION_LEVELS.INTERMEDIATE.talk.conversationStyle,
+    topics: CONVERSATION_LEVELS.INTERMEDIATE.topics.join(', '),
+    speed: CONVERSATION_LEVELS.INTERMEDIATE.talk.speed,
+    languageRatio: CONVERSATION_LEVELS.INTERMEDIATE.talk.languageRatio,
+    goals: CONVERSATION_LEVELS.INTERMEDIATE.talk.goals
+  },
+  {
+    key: 'advanced',
+    name: CONVERSATION_LEVELS.ADVANCED.name,
+    description: CONVERSATION_LEVELS.ADVANCED.talk.conversationStyle,
+    topics: CONVERSATION_LEVELS.ADVANCED.topics.join(', '),
+    speed: CONVERSATION_LEVELS.ADVANCED.talk.speed,
+    languageRatio: CONVERSATION_LEVELS.ADVANCED.talk.languageRatio,
+    goals: CONVERSATION_LEVELS.ADVANCED.talk.goals
   }
-}
+]
+
+
+export const STUDY_GOALS = [
+  { value: 'conversation', label: '회화 능력 향상 (Conversational Fluency)' },
+  { value: 'exam', label: '시험 대비 (TOPIK Preparation)' },
+  { value: 'travel', label: '여행 한국어 (Travel Korean)' },
+  { value: 'business', label: '비즈니스 한국어 (Business Korean)' },
+  { value: 'culture', label: '한국 문화 이해 (Cultural Understanding)' },
+  { value: 'friendship', label: '한국인 친구 사귀기 (Making Korean Friends)' },
+]

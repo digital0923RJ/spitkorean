@@ -561,7 +561,7 @@ export const subscriptionAPI = {
   },
 
   getUsageStats: async () => {
-    const response = await api.get('/subscription/usage-stats')
+    const response = await api.get('common/subscription/usage-stats')
     return response.data
   },
 

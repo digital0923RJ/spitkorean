@@ -22,10 +22,13 @@ const Login = () => {
   
   // 이미 로그인된 경우 리다이렉트
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate(redirectTo, { replace: true })
-    }
-  }, [isAuthenticated, navigate, redirectTo])
+  console.log('isAuthenticated mudou:', isAuthenticated)
+  console.log('user atual:', user)
+  if (isAuthenticated) {
+    console.log('Redirecionando para:', redirectTo)
+    navigate(redirectTo, { replace: true })
+  }
+}, [isAuthenticated, navigate, redirectTo])
   
   // URL 파라미터에서 메시지 확인
   useEffect(() => {

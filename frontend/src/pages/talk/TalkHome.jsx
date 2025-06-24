@@ -17,7 +17,7 @@ import ChatInterface from '../../components/talk/ChatInterface.jsx';
 import { useSubscription } from '../../hooks/useSubscription.js';
 import { getTalkUsage, getTalkSessions } from '../../api/talk';
 import { PRODUCTS } from '../../shared/constants/products';
-import { KOREAN_LEVELS } from '../../shared/constants/levels';
+import { CONVERSATION_LEVELS, KOREAN_LEVELS } from '../../shared/constants/levels';
 
 const TalkHome = () => {
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ const TalkHome = () => {
   
   // 사용자 레벨 정보
   const userLevel = user?.profile?.koreanLevel || 'beginner';
-  const levelConfig = KOREAN_LEVELS.talk[userLevel];
+  const levelConfig = CONVERSATION_LEVELS[userLevel.toUpperCase()]
   const productInfo = PRODUCTS.talk;
 
   // 구독 및 사용량 정보

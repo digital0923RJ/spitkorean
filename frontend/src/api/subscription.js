@@ -111,7 +111,7 @@ export const getBillingHistory = async (params = {}) => {
  * @returns {Promise} 사용량 통계
  */
 export const getUsageStats = async () => {
-  const response = await apiClient.get('/subscription/usage-stats');
+  const response = await apiClient.get('/common/subscription/usage-stats');
   return response.data;
 };
 

@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from pydantic import BaseSettings
+from pydantic import ConfigDict  
 
 load_dotenv()
 
@@ -45,8 +46,11 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_HOURS: int = 24
     
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    # ✅ NOVA CONFIGURAÇÃO PYDANTIC 2.x
+    model_config = ConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra='ignore'  # ← RESOLVE O ERRO!
+    )
 
 settings = Settings()

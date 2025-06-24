@@ -1,6 +1,6 @@
-from quart import Quart, jsonify
+from quart import Blueprint, Quart, jsonify
 from motor.motor_asyncio import AsyncIOMotorClient
-from redis.asyncio import Redis  # aioredis 대신 redis.asyncio 사용
+from redis.asyncio import Redis
 import os
 from dotenv import load_dotenv
 from datetime import datetime
@@ -18,16 +18,30 @@ from app.routes.journey import journey_routes
 from app.routes.common import common_routes
 from app.routes.translation import translation_routes
 from app.routes.webhook import webhooks
+from app.config import settings
 
 load_dotenv()
 
 app = Quart(__name__)
 
-# 환경 변수
+# 환경 변수 설정
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "your-secret-key")
 app.config["MONGO_URI"] = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 app.config["REDIS_URL"] = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
 app.config["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
+
+# Pydantic settings를 Flask config에 추가
+app.config.update(
+    MONGO_DB_USERS=settings.MONGO_DB_USERS,
+    MONGO_DB_TALK=settings.MONGO_DB_TALK,
+    MONGO_DB_DRAMA=settings.MONGO_DB_DRAMA,
+    MONGO_DB_TEST=settings.MONGO_DB_TEST,
+    MONGO_DB_JOURNEY=settings.MONGO_DB_JOURNEY,
+    MONGO_DB_GAMIFICATION=settings.MONGO_DB_GAMIFICATION,
+    JWT_SECRET_KEY=settings.JWT_SECRET_KEY,
+    JWT_ALGORITHM=settings.JWT_ALGORITHM,
+    JWT_ACCESS_TOKEN_EXPIRE_HOURS=settings.JWT_ACCESS_TOKEN_EXPIRE_HOURS,
+)
 
 # 데이터베이스 및 캐시 클라이언트 설정
 @app.before_serving
@@ -66,9 +80,8 @@ async def setup_clients():
             print(f"❌ MongoDB connection failed: {e}")
             raise
         
-        # 이벤트 버스 백그라운드 리스너 시작 (수정됨)
+        # 이벤트 버스 백그라운드 리스너 시작
         if app.redis_client:
-            # Redis가 있을 때만 이벤트 리스너 시작
             app.add_background_task(app.event_bus.start_listener)
             print("✅ Event bus listener started")
         else:
@@ -80,22 +93,18 @@ async def setup_clients():
         print(f"❌ Application initialization failed: {e}")
         raise
 
-# after_serving 함수도 추가
 @app.after_serving
 async def cleanup_clients():
     """애플리케이션 종료 시 클라이언트 정리"""
     try:
-        # 이벤트 버스 리스너 중지
         if hasattr(app, 'event_bus'):
             await app.event_bus.stop_listener()
             print("✅ Event bus listener stopped")
         
-        # Redis 연결 종료
         if hasattr(app, 'redis_client') and app.redis_client:
             await app.redis_client.close()
             print("✅ Redis connection closed")
         
-        # MongoDB 연결 종료
         if hasattr(app, 'mongo_client'):
             app.mongo_client.close()
             print("✅ MongoDB connection closed")
@@ -104,11 +113,10 @@ async def cleanup_clients():
         
     except Exception as e:
         print(f"⚠️ Cleanup error: {e}")
- 
- # 에러 핸들러도 추가
+
+# 에러 핸들러
 @app.errorhandler(500)
 async def internal_error(error):
-    """500 에러 핸들러"""
     return {
         "status": "error",
         "message": "서버 내부 오류가 발생했습니다",
@@ -117,7 +125,6 @@ async def internal_error(error):
 
 @app.errorhandler(404)
 async def not_found(error):
-    """404 에러 핸들러"""
     return {
         "status": "error", 
         "message": "요청한 리소스를 찾을 수 없습니다",
@@ -126,19 +133,17 @@ async def not_found(error):
 
 @app.errorhandler(401)
 async def unauthorized(error):
-    """401 에러 핸들러"""
     return {
         "status": "error",
         "message": "인증이 필요합니다",
         "error_type": "unauthorized"
     }, 401
-        
+
 # CORS 설정
 @app.after_request
 async def add_cors_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    #modification to allow cors
     response.headers["Access-Control-Allow-Headers"] = "*"
     response.headers["Access-Control-Max-Age"] = "86400"
     return response
@@ -148,15 +153,15 @@ async def add_cors_headers(response):
 async def handle_options(path):
     return "", 204
 
-# 라우트 등록
-app.register_blueprint(auth_routes)
-app.register_blueprint(talk_routes)
-app.register_blueprint(drama_routes)
-app.register_blueprint(test_routes)
-app.register_blueprint(journey_routes)
-app.register_blueprint(common_routes)
-app.register_blueprint(translation_routes)
-app.register_blueprint(webhooks)
+# 라우트 등록 - URL 프리픽스 추가
+app.register_blueprint(auth_routes, url_prefix='/api/v1/auth')
+app.register_blueprint(talk_routes, url_prefix='/api/v1/talk')
+app.register_blueprint(drama_routes, url_prefix='/api/v1/drama')
+app.register_blueprint(test_routes, url_prefix='/api/v1/test')
+app.register_blueprint(journey_routes, url_prefix='/api/v1/journey')
+app.register_blueprint(common_routes, url_prefix='/api/v1/common')
+app.register_blueprint(translation_routes, url_prefix='/api/v1/translation')
+app.register_blueprint(webhooks, url_prefix='/api/v1/webhook')
 
 # 기본 라우트
 @app.route("/")
@@ -168,5 +173,22 @@ async def index():
 async def health():
     return jsonify({"status": "healthy"})
 
+# 디버그용 라우트 목록 확인
+@app.route("/routes")
+async def list_routes():
+    """등록된 라우트 목록 확인용"""
+    routes = []
+    for rule in app.url_map.iter_rules():
+        routes.append({
+            'endpoint': rule.endpoint,
+            'methods': list(rule.methods),
+            'rule': rule.rule
+        })
+    return jsonify({"routes": routes})
+
 if __name__ == "__main__":
-    app.run(debug=os.getenv("FLASK_ENV") == "development", host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+    app.run(
+        debug=os.getenv("FLASK_ENV") == "development", 
+        host="0.0.0.0", 
+        port=int(os.getenv("PORT", 5000))
+    )

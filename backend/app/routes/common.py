@@ -562,3 +562,63 @@ async def get_subscription_history():
         "history": formatted_history,
         "total_records": len(formatted_history)
     }, "구독 히스토리를 성공적으로 조회했습니다")
+
+
+@common_routes.route('/subscription/my-subscriptions', methods=['GET'])
+@require_auth
+async def get_my_subscriptions():
+    """내 구독 목록 조회 API"""
+    user_id = request.user_id
+
+    db = current_app.mongo_client[current_app.config.get("MONGO_DB_USERS")]
+    subscriptions = await Subscription.find_active_by_user(db, user_id)
+
+    formatted_subscriptions = []
+    for sub in subscriptions:
+        formatted_subscriptions.append({
+            "subscription_id": str(sub.get("_id")),
+            "product": sub.get("product"),
+            "status": sub.get("status"),
+            "plan_type": sub.get("plan_type"),
+            "bundle_id": sub.get("bundle_id"),
+            "amount": sub.get("price"),
+            "started_date": sub.get("start_date").isoformat() if sub.get("start_date") else None,
+            "end_date": sub.get("end_date").isoformat() if sub.get("end_date") else None,
+            "payment_method": "****1234",  # Simula, ajusta se tiver esse dado
+            "auto_renewal": True,  # Ajusta se tiver essa lógica no seu modelo
+        })
+
+    return api_response({
+        "subscriptions": formatted_subscriptions,
+        "total_subscriptions": len(formatted_subscriptions)
+    }, "구독 정보를 성공적으로 조회했습니다")
+
+@common_routes.route('/subscription/usage-stats', methods=['GET'])
+@require_auth
+async def get_usage_stats():
+    print("🔍 Usage stats endpoint called")
+    """API para retornar dados de uso do usuário"""
+    user_id = request.user_id
+
+    db = current_app.mongo_client[current_app.config.get("MONGO_DB_USERS")]
+
+    usage = await db['usage_stats'].find_one({"user_id": ObjectId(user_id)})
+
+    if not usage:
+        usage = {
+            "daily_minutes": 0,
+            "total_minutes": 0,
+            "daily_requests": 0,
+            "total_requests": 0,
+            "last_updated": datetime.utcnow().isoformat()
+        }
+
+    return api_response({
+        "usage": {
+            "daily_minutes": usage.get("daily_minutes", 0),
+            "total_minutes": usage.get("total_minutes", 0),
+            "daily_requests": usage.get("daily_requests", 0),
+            "total_requests": usage.get("total_requests", 0),
+            "last_updated": usage.get("last_updated", datetime.utcnow().isoformat())
+        }
+    }, "사용자 사용 통계를 성공적으로 조회했습니다")
