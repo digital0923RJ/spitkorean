@@ -83,15 +83,22 @@ const Card = ({
   const Component = clickable || onClick ? 'button' : 'div'
 
   return (
-    <Component
-      className={cardClasses}
-      onClick={onClick}
-      disabled={disabled}
-      {...props}
-    >
-      {children}
-    </Component>
-  )
+  <Component
+    role={clickable || onClick ? 'button' : undefined}
+    tabIndex={clickable || onClick ? 0 : undefined}
+    className={cardClasses}
+    onClick={onClick}
+    onKeyDown={(e) => {
+      if ((clickable || onClick) && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        onClick?.(e);
+      }
+    }}
+    {...props}
+  >
+    {children}
+  </Component>
+)
 }
 
 // 카드 헤더 컴포넌트

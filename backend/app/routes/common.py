@@ -12,6 +12,34 @@ gpt_service = GPTService()
 
 common_routes = Blueprint('common', __name__, url_prefix='/api/v1/common')
 
+@common_routes.route('/streak', methods=['GET'])
+@require_auth
+async def get_streak():
+    """
+    연속 학습 정보 조회 API (GET)
+    """
+    user_id = request.user_id
+
+    try:
+        db = current_app.mongo_client[current_app.config.get("MONGO_DB_USERS")]
+        streak_data = await db["streaks"].find_one({"user_id": ObjectId(user_id)})
+
+        if not streak_data:
+            return api_response({
+                "streak_days": 0,
+                "last_updated": None
+            }, "연속 학습 정보가 없습니다")
+
+        response_data = {
+            "streak_days": streak_data.get("days", 0),
+            "last_updated": streak_data.get("last_updated")
+        }
+
+        return api_response(response_data, "연속 학습 정보가 성공적으로 조회되었습니다")
+
+    except Exception as e:
+        print(f"❌ Error fetching streak: {str(e)}")
+        return error_response("연속 학습 정보를 가져오는 중 오류가 발생했습니다", 500)
 
 @common_routes.route('/streak', methods=['POST'])
 @require_auth
