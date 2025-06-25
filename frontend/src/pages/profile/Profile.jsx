@@ -27,7 +27,7 @@ import Button from '../../components/common/Buttom.jsx';
 import Card from '../../components/common/Card';
 import SubscriptionStatus from '../../components/subscription/SubscriptionStatus';
 import { PRODUCTS } from '../../shared/constants/products';
-//import { KOREAN_LEVELS, LANGUAGES } from '../../shared/constants/levels';
+import { KOREAN_LEVELS, LANGUAGES } from '../../shared/constants/levels';
 // 상수
 import { ROUTES } from '../../shared/constants/routes.js';
 // 유틸리티
@@ -203,7 +203,7 @@ const Profile = () => {
               <div className="flex items-center space-x-2">
                 <BookOpen className="w-4 h-4" />
                 <span>
-                  한국어 {KOREAN_LEVELS.find(level => level.id === user?.profile?.koreanLevel)?.name || '초급'}
+                  한국어 {KOREAN_LEVELS.find(level => level.key === user?.profile?.koreanLevel)?.name || '초급'}
                 </span>
               </div>
               

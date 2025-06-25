@@ -455,3 +455,14 @@ export const STUDY_GOALS = [
   { value: 'culture', label: '한국 문화 이해 (Cultural Understanding)' },
   { value: 'friendship', label: '한국인 친구 사귀기 (Making Korean Friends)' },
 ]
+
+export const LANGUAGES = [
+  { code: 'en', name: '영어' },
+  { code: 'pt', name: '포르투갈어' },
+  { code: 'es', name: '스페인어' },
+  { code: 'fr', name: '프랑스어' },
+  { code: 'de', name: '독일어' },
+  { code: 'ja', name: '일본어' },
+  { code: 'zh', name: '중국어' },
+  { code: 'ko', name: '한국어' }
+];

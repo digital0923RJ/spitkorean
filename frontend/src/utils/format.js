@@ -558,6 +558,9 @@ export const urlUtils = {
   }
 }
 
+export const formatDate = dateUtils.formatKoreanDate
+export const formatPrice = numberUtils.formatPrice
+
 // 기본 내보내기
 export default {
   dateUtils,
