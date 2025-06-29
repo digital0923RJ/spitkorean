@@ -466,3 +466,11 @@ export const LANGUAGES = [
   { code: 'zh', name: '중국어' },
   { code: 'ko', name: '한국어' }
 ];
+
+export const INTERESTS = [
+  { value: 'korean_culture', label: 'Cultura Coreana' },
+  { value: 'kpop', label: 'K-pop' },
+  { value: 'kdrama', label: 'K-dramas' },
+  { value: 'travel', label: 'Travel in Korea' },
+  { value: 'language_exchange', label: 'Language Exchange' },
+];

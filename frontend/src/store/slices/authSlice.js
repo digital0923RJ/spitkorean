@@ -37,24 +37,41 @@ export const registerUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await authAPI.register(userData)
-      
-      if (response.status === 'success') {
-        // 토큰 저장
+
+      // Log the actual API response (for debugging)
+      console.log('API Response:', response)
+
+      // Consider it successful if the status is "success" or the message includes "완료" (completed)
+      const isSuccess =
+        response?.status === 'success' ||
+        response?.message?.includes('완료')
+
+      if (isSuccess) {
+        // Save the auth token
         setAuthToken(response.data.token)
-        
-        // 세션 타임아웃 설정
+
+        // Set session timeout (24 hours)
         sessionUtils.setSessionTimeout(24 * 60)
-        
-        // 이벤트 발행
+
+        // Emit login event
         authEvents.emitLogin(response.data.user)
-        
-        toast.success('회원가입이 완료되었습니다! SpitKorean에 오신 것을 환영합니다! 🎉')
+
+        // Show success toast (in Korean)
+        toast.success(
+          '회원가입이 완료되었습니다! SpitKorean에 오신 것을 환영합니다! 🎉'
+        )
+
         return response.data
       }
-      
-      return rejectWithValue(response.message || '회원가입에 실패했습니다.')
+
+      // If not successful, treat as an error
+      return rejectWithValue(
+        response?.message || 'Registration failed.'
+      )
     } catch (error) {
-      return rejectWithValue(error.message || '회원가입 중 오류가 발생했습니다.')
+      return rejectWithValue(
+        error?.message || 'An error occurred during registration.'
+      )
     }
   }
 )

@@ -9,21 +9,25 @@ auth_routes = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 @auth_routes.route('/register', methods=['POST'])
 async def register():
     data = await request.json
-    
+    print("DEBUG - register data:", data)
+
     if not data or not data.get('email') or not data.get('password'):
+        print("Error: Missing email or password")
         return error_response("이메일과 비밀번호가 필요합니다", 400)
     
-    # 사용자 중복 확인
+    if data.get('password') != data.get('confirmPassword'):
+        print("Error: Password and confirmation do not match")
+        return error_response("비밀번호가 일치하지 않습니다", 400)
+
     users_collection = current_app.mongo_client[current_app.config["MONGO_DB_USERS"]].users
     existing_user = await users_collection.find_one({"email": data["email"]})
     
     if existing_user:
+        print("Error: User already exists")
         return error_response("이미 등록된 이메일입니다", 400)
-    
-    # 비밀번호 해싱
+
     hashed_password = bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt())
     
-    # 새 사용자 생성
     new_user = {
         "email": data["email"],
         "password": hashed_password.decode('utf-8'),
@@ -44,11 +48,15 @@ async def register():
     
     result = await users_collection.insert_one(new_user)
     user_id = result.inserted_id
-    
-    # JWT 토큰 생성 (AuthManager 사용)
-    token = current_app.auth_manager.generate_token(user_id)
-    
-    return api_response({
+    print(f"User created with id: {user_id}")
+
+    try:
+        token = current_app.auth_manager.generate_token(user_id)
+    except Exception as e:
+        print(f"Error generating token: {e}")
+        return error_response("토큰 생성 오류", 500)
+
+    response = api_response({
         "token": token,
         "user": {
             "id": str(user_id),
@@ -56,6 +64,9 @@ async def register():
             "profile": new_user["profile"]
         }
     }, "회원가입이 완료되었습니다", 201)
+    print("Returning successful response")
+    return response
+
 
 # 2. login 함수에서도 동일하게 수정
 @auth_routes.route('/login', methods=['POST'])
@@ -169,3 +180,10 @@ async def update_profile():
     return api_response({
         "updated_fields": list(update_data.keys())
     }, "프로필이 성공적으로 업데이트되었습니다")
+
+##logout simple route
+
+@auth_routes.route('/logout', methods=['POST'])
+async def logout():
+
+    return api_response({}, "로그아웃되었습니다", 200)

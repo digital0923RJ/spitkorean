@@ -323,7 +323,7 @@ const Dashboard = () => {
                 <p className="text-sm font-medium text-gray-600">
                   <TUI>총 XP</TUI>
                 </p>
-                <p className="text-3xl font-bold text-gray-900">{totalXP.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-gray-900">{(totalXP ?? 0).toLocaleString()}</p>
                 <p className="text-xs text-gray-500 mt-1">
                   <T>레벨 {currentLevel}</T>
                 </p>

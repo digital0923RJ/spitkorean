@@ -167,7 +167,7 @@ const Plans = () => {
           </div>
         </div>
 
-        {/* 개별 상품 선택 */}
+        {/* 개별 상품 선택 - ESTRUTURA CORRIGIDA */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {Object.entries(PRODUCTS).map(([productId, product]) => {
             const icon = productIcons[productId] || "📱"
@@ -177,10 +177,9 @@ const Plans = () => {
             return (
               <div
                 key={productId}
-                className={`relative bg-white rounded-xl shadow-lg border-2 transition-all duration-300 cursor-pointer transform hover:scale-105 ${
+                className={`relative bg-white rounded-xl shadow-lg border-2 transition-all duration-300 transform hover:scale-105 ${
                   isSelected ? `border-${color}-500 ring-4 ring-${color}-100` : "border-gray-200 hover:border-gray-300"
                 }`}
-                onClick={() => toggleProduct(productId)}
               >
                 {/* 선택 체크 */}
                 {isSelected && (
@@ -192,53 +191,64 @@ const Plans = () => {
                 )}
 
                 <div className="p-6">
-                  {/* 상품 헤더 */}
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className={`p-2 bg-${color}-100 rounded-lg`}>
-                      <span className="text-2xl">{icon}</span>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
-                      <p className="text-sm text-gray-500">{product.tag}</p>
-                    </div>
-                  </div>
-
-                  {/* 가격 */}
-                  <div className="mb-4">
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-2xl font-bold text-gray-900">
-                        ${billingCycle === "annual" ? Math.round(product.price * 12 * 0.8) : product.price}
-                      </span>
-                      <span className="text-gray-500">/{billingCycle === "annual" ? "년" : "월"}</span>
-                    </div>
-                    {billingCycle === "annual" && (
-                      <div className="text-sm text-gray-400 line-through">${product.price * 12}/년</div>
-                    )}
-                  </div>
-
-                  {/* 설명 */}
-                  <p className="text-gray-600 text-sm mb-4">{product.description}</p>
-
-                  {/* 주요 기능 */}
-                  <div className="space-y-2 mb-6">
-                    {product.features.slice(0, 3).map((feature, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <span className="text-green-500 text-sm">✓</span>
-                        <span className="text-sm text-gray-600">{feature}</span>
+                  {/* 상품 헤더 - ÁREA CLICÁVEL SEPARADA */}
+                  <div className="cursor-pointer" onClick={() => toggleProduct(productId)}>
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className={`p-2 bg-${color}-100 rounded-lg`}>
+                        <span className="text-2xl">{icon}</span>
                       </div>
-                    ))}
-                    <div className="text-xs text-gray-500">일일 {product.dailyLimit}회 사용</div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
+                        <p className="text-sm text-gray-500">{product.tag}</p>
+                      </div>
+                    </div>
+
+                    {/* 가격 */}
+                    <div className="mb-4">
+                      <div className="flex items-baseline space-x-2">
+                        <span className="text-2xl font-bold text-gray-900">
+                          ${billingCycle === "annual" ? Math.round(product.price * 12 * 0.8) : product.price}
+                        </span>
+                        <span className="text-gray-500">/{billingCycle === "annual" ? "년" : "월"}</span>
+                      </div>
+                      {billingCycle === "annual" && (
+                        <div className="text-sm text-gray-400 line-through">${product.price * 12}/년</div>
+                      )}
+                    </div>
+
+                    {/* 설명 */}
+                    <p className="text-gray-600 text-sm mb-4">{product.description}</p>
+
+                    {/* 주요 기능 */}
+                    <div className="space-y-2 mb-6">
+                      {product.features.slice(0, 3).map((feature, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <span className="text-green-500 text-sm">✓</span>
+                          <span className="text-sm text-gray-600">{feature}</span>
+                        </div>
+                      ))}
+                      <div className="text-xs text-gray-500">일일 {product.dailyLimit}회 사용</div>
+                    </div>
                   </div>
 
-                  {/* 무료 체험 버튼 */}
+                  {/* 무료 체험 버튼 - SEPARADO DA ÁREA CLICÁVEL */}
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      startFreeTrial(productId)
-                    }}
-                    className="w-full mb-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    onClick={() => startFreeTrial(productId)}
+                    className="w-full mb-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                   >
                     3일 무료 체험
+                  </button>
+
+                  {/* 선택 버튼 - BOTÃO SEPARADO PARA SELEÇÃO */}
+                  <button
+                    onClick={() => toggleProduct(productId)}
+                    className={`w-full px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                      isSelected
+                        ? `bg-${color}-600 text-white hover:bg-${color}-700 focus:ring-${color}-500`
+                        : `border border-${color}-300 text-${color}-700 bg-white hover:bg-${color}-50 focus:ring-${color}-500`
+                    }`}
+                  >
+                    {isSelected ? "선택됨" : "선택하기"}
                   </button>
                 </div>
               </div>
@@ -349,7 +359,7 @@ const Plans = () => {
                   selectAllProducts()
                   setTimeout(() => handleSubscribe(), 100)
                 }}
-                className="bg-white text-purple-600 hover:bg-purple-50 font-semibold px-6 py-3 rounded-lg flex items-center space-x-2"
+                className="bg-white text-purple-600 hover:bg-purple-50 font-semibold px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
               >
                 <span>올인원 선택하기</span>
                 <span>→</span>
@@ -364,7 +374,7 @@ const Plans = () => {
             <button
               onClick={handleSubscribe}
               disabled={loading}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-4 text-lg rounded-lg flex items-center space-x-2 mx-auto"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-4 text-lg rounded-lg flex items-center space-x-2 mx-auto transition-colors disabled:opacity-50"
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
@@ -383,7 +393,7 @@ const Plans = () => {
           <div className="text-center mb-8">
             <button
               onClick={() => setShowComparison(!showComparison)}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 mx-auto"
+              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 mx-auto transition-colors"
             >
               <span>ℹ️</span>
               <span>{showComparison ? "비교표 숨기기" : "상품 상세 비교하기"}</span>

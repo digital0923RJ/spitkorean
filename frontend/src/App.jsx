@@ -118,7 +118,7 @@ function App() {
         </PublicLayout>
       } />
       
-      <Route path="/plans" element={
+      <Route path="/subscription/plans" element={
         <PublicLayout>
           <Plans />
         </PublicLayout>
@@ -147,7 +147,14 @@ function App() {
         </ProtectedRoute>
       } />
       
-      <Route path="/settings" element={
+      <Route path="/profile/settings" element={
+        <ProtectedRoute>
+          <AuthenticatedLayout>
+            <Settings />
+          </AuthenticatedLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/profile/edit" element={
         <ProtectedRoute>
           <AuthenticatedLayout>
             <Settings />

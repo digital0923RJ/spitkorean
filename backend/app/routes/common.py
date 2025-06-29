@@ -64,7 +64,6 @@ async def update_streak():
 
 ##endpoint for production
 @common_routes.route('/translate', methods=['POST'])
-# @require_auth  # ❌ 
 async def translate():
     try:
         data = await request.json
@@ -77,7 +76,7 @@ async def translate():
         if not text:
             return api_response(None, "Missing 'text' parameter", status=400)
 
-        # Simulação simples de tradução para teste
+        # Simple translation simulation for testing
         if target_language == 'ko':
             translated_text = f"[KO] {text}"
         elif target_language == 'en':
@@ -132,7 +131,7 @@ async def translate_ui():
             
             translated_elements.append(translated)
         except Exception as e:
-            translated_elements.append(element)  # Fallback para texto original
+            translated_elements.append(element)  # Fallback to original text
 
     return api_response({
         "original_elements": ui_elements,
@@ -650,3 +649,140 @@ async def get_usage_stats():
             "last_updated": usage.get("last_updated", datetime.utcnow().isoformat())
         }
     }, "사용자 사용 통계를 성공적으로 조회했습니다")
+
+
+##new routes
+@common_routes.route('/level-check', methods=['POST'])
+@require_auth
+async def check_level_up():
+    """
+    레벨업 체크 API
+    """
+    user_id = request.user_id
+    
+    try:
+        data = await request.json
+        current_xp = data.get('current_xp', 0)
+        gained_xp = data.get('gained_xp', 0)
+        
+        db = current_app.mongo_client[current_app.config.get("MONGO_DB_USERS")]
+        
+        # 사용자의 현재 게임화 정보 조회
+        gamification = await db["gamification"].find_one({"userId": ObjectId(user_id)})
+        
+        if not gamification:
+            # 게임화 데이터가 없으면 생성
+            gamification_data = {
+                "userId": ObjectId(user_id),
+                "totalXP": gained_xp,
+                "currentLevel": 1,
+                "currentLeague": "bronze",
+                "streakDays": 0,
+                "achievements": [],
+                "weeklyProgress": {"xp": gained_xp},
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            await db["gamification"].insert_one(gamification_data)
+            
+            return api_response({
+                "level_up": True,
+                "new_level": 1,
+                "current_xp": gained_xp,
+                "xp_to_next_level": 100,
+                "achievements_unlocked": []
+            }, "레벨업 체크가 완료되었습니다")
+        
+        # 현재 레벨과 XP 계산
+        old_level = gamification.get("currentLevel", 1)
+        total_xp = gamification.get("totalXP", 0) + gained_xp
+        
+        # 레벨 계산 로직 (예: 100 XP마다 레벨업)
+        new_level = max(1, total_xp // 100 + 1)
+        level_up = new_level > old_level
+        
+        # XP 다음 레벨까지 필요한 양
+        xp_to_next_level = (new_level * 100) - total_xp
+        
+        # 업적 체크
+        achievements_unlocked = []
+        current_achievements = gamification.get("achievements", [])
+        
+        # 레벨 기반 업적
+        if new_level >= 5 and "level_5" not in current_achievements:
+            achievements_unlocked.append("level_5")
+            current_achievements.append("level_5")
+        
+        if new_level >= 10 and "level_10" not in current_achievements:
+            achievements_unlocked.append("level_10")
+            current_achievements.append("level_10")
+        
+        # 게임화 정보 업데이트
+        update_data = {
+            "totalXP": total_xp,
+            "currentLevel": new_level,
+            "achievements": current_achievements,
+            "weeklyProgress.xp": gamification.get("weeklyProgress", {}).get("xp", 0) + gained_xp,
+            "updated_at": datetime.utcnow()
+        }
+        
+        await db["gamification"].update_one(
+            {"userId": ObjectId(user_id)},
+            {"$set": update_data}
+        )
+        
+        # 이벤트 발행 (레벨업 시)
+        if level_up:
+            await current_app.event_bus.emit_level_up(user_id, new_level, old_level)
+        
+        return api_response({
+            "level_up": level_up,
+            "old_level": old_level,
+            "new_level": new_level,
+            "current_xp": total_xp,
+            "gained_xp": gained_xp,
+            "xp_to_next_level": xp_to_next_level,
+            "achievements_unlocked": achievements_unlocked
+        }, "레벨업 체크가 완료되었습니다")
+        
+    except Exception as e:
+        print(f"❌ Error in level check: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return error_response("레벨업 체크 중 오류가 발생했습니다", 500)
+
+@common_routes.route('/level-check', methods=['GET'])
+@require_auth
+async def get_level_info():
+    """
+    현재 레벨 정보 조회 API
+    """
+    user_id = request.user_id
+    
+    try:
+        db = current_app.mongo_client[current_app.config.get("MONGO_DB_USERS")]
+        gamification = await db["gamification"].find_one({"userId": ObjectId(user_id)})
+        
+        if not gamification:
+            return api_response({
+                "current_level": 1,
+                "current_xp": 0,
+                "xp_to_next_level": 100,
+                "total_xp": 0
+            }, "레벨 정보를 조회했습니다")
+        
+        current_level = gamification.get("currentLevel", 1)
+        total_xp = gamification.get("totalXP", 0)
+        xp_to_next_level = (current_level * 100) - total_xp
+        
+        return api_response({
+            "current_level": current_level,
+            "current_xp": total_xp,
+            "xp_to_next_level": max(0, xp_to_next_level),
+            "total_xp": total_xp,
+            "achievements": gamification.get("achievements", [])
+        }, "레벨 정보를 성공적으로 조회했습니다")
+        
+    except Exception as e:
+        print(f"❌ Error fetching level info: {str(e)}")
+        return error_response("레벨 정보 조회 중 오류가 발생했습니다", 500)

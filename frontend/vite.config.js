@@ -55,13 +55,14 @@ export default defineConfig({
     }
   },
   css: {
-    postcss: {
-      plugins: [
-        tailwindcss,
-        autoprefixer,
-      ],
-    },
+  postcss: {
+    plugins: [
+      tailwindcss(),
+      autoprefixer(),
+    ],
   },
+},
+
   test: {
     globals: true,
     environment: 'jsdom',

@@ -324,7 +324,55 @@ class Common:
                 }
             }
         )
-    
+    @classmethod
+    async def update_streak(cls, db, user_id):
+        """Updates user streak based on last activity"""
+        if isinstance(user_id, str):
+            user_id = ObjectId(user_id)
+
+        gamification_db = db[cls.gamification_collection]
+        now = datetime.utcnow()
+        today = now.date()
+
+        user_data = await gamification_db.find_one({"userId": user_id})
+
+        if not user_data:
+            # Create new document if not exists
+            await cls.create_gamification(db, user_id)
+            user_data = await gamification_db.find_one({"userId": user_id})
+
+        last_date = user_data.get("lastActivityDate")
+        current_streak = user_data.get("streakDays", 0)
+
+        # Calculate the difference in days
+        if last_date:
+            days_diff = (today - last_date.date()).days
+        else:
+            days_diff = None
+
+        if days_diff == 0:
+            # Already updated today, does nothing
+            return {"streak_days": current_streak, "last_updated": last_date}
+        elif days_diff == 1:
+            # Continue streak
+            new_streak = current_streak + 1
+        else:
+            # Reset streak
+            new_streak = 1
+
+        await gamification_db.update_one(
+            {"userId": user_id},
+            {
+                "$set": {
+                    "streakDays": new_streak,
+                    "lastActivityDate": now,
+                    "updated_at": now
+                }
+            }
+        )
+
+        return {"streak_days": new_streak, "last_updated": now}
+       
     @classmethod 
     async def get_leaderboard(cls, db, league="bronze", limit=10):
         """리더보드 조회
