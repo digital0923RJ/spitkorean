@@ -15,6 +15,9 @@ export const loginUser = createAsyncThunk(
         // 토큰 저장
         setAuthToken(response.data.token)
         
+        // 🆕 Armazenar dados do usuário no localStorage
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+        
         // 세션 타임아웃 설정 (24시간)
         sessionUtils.setSessionTimeout(24 * 60)
         
@@ -31,7 +34,6 @@ export const loginUser = createAsyncThunk(
     }
   }
 )
-
 export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (userData, { rejectWithValue }) => {
@@ -86,6 +88,7 @@ export const logoutUser = createAsyncThunk(
       // 로컬 토큰 삭제
       removeAuthToken()
       sessionUtils.clearSession()
+      localStorage.removeItem('user') // 🆕 Limpar usuário
       
       // 이벤트 발행
       authEvents.emitLogout()
@@ -98,13 +101,13 @@ export const logoutUser = createAsyncThunk(
       // 서버 로그아웃 실패해도 클라이언트는 정리
       removeAuthToken()
       sessionUtils.clearSession()
+      localStorage.removeItem('user') // 🆕 Limpar usuário
       authEvents.emitLogout()
       
       return true
     }
   }
 )
-
 export const checkAuthStatus = createAsyncThunk(
   'auth/checkAuthStatus',
   async (_, { rejectWithValue }) => {
@@ -116,12 +119,16 @@ export const checkAuthStatus = createAsyncThunk(
         // 토큰이 없거나 유효하지 않으면 정리
         removeAuthToken()
         sessionUtils.clearSession()
+        localStorage.removeItem('user') // 🆕 Limpar usuário do localStorage
         
         return {
           isAuthenticated: false,
           user: null
         }
       }
+      
+      // 🆕 Verificar se existe usuário no localStorage
+      const localUser = JSON.parse(localStorage.getItem('user'))
       
       // 서버에서 사용자 정보 확인
       const response = await authAPI.getCurrentUser()
@@ -133,6 +140,7 @@ export const checkAuthStatus = createAsyncThunk(
         if (!authState.isAuthenticated) {
           removeAuthToken()
           sessionUtils.clearSession()
+          localStorage.removeItem('user') // 🆕 Limpar usuário
           
           return {
             isAuthenticated: false,
@@ -140,9 +148,12 @@ export const checkAuthStatus = createAsyncThunk(
           }
         }
         
+        // 🆕 Combinar dados do servidor com localStorage se necessário
+        const userData = response.data || localUser
+        
         return {
           isAuthenticated: true,
-          user: response.data,
+          user: userData,
           authState
         }
       }
@@ -152,6 +163,7 @@ export const checkAuthStatus = createAsyncThunk(
       // 인증 실패 시 토큰 정리
       removeAuthToken()
       sessionUtils.clearSession()
+      localStorage.removeItem('user') // 🆕 Limpar usuário
       
       return rejectWithValue(error.message || '인증 상태 확인 실패')
     }
@@ -342,6 +354,8 @@ const authSlice = createSlice({
       state.verifyEmailError = null
       state.refreshTokenError = null
     },
+
+    
     
     // 특정 에러 클리어
     clearError: (state, action) => {
@@ -357,6 +371,7 @@ const authSlice = createSlice({
       state.resetPasswordSuccess = false
       state.verifyEmailSuccess = false
     },
+    
     
     // 수동 로그아웃 (토큰 만료, 보안 이슈 등)
     forceLogout: (state, action) => {
@@ -383,7 +398,22 @@ const authSlice = createSlice({
         toast.error('보안상의 이유로 로그아웃되었습니다.')
       }
     },
-    
+    loadInitialAuthState: (state, action) => {
+  if (!action.payload) {
+    // Limpa o estado se não houver payload
+    state.user = null
+    state.isAuthenticated = false
+    state.token = null
+    state.isLoading = false
+    return
+  }
+
+  const { user, token } = action.payload
+  state.user = user
+  state.isAuthenticated = !!token
+  state.token = token
+  state.isLoading = false
+},
     // 사용자 정보 업데이트 (실시간)
     updateUser: (state, action) => {
       if (state.user) {
@@ -656,6 +686,7 @@ export const {
   clearErrors,
   clearError,
   resetSuccessStates,
+  loadInitialAuthState,
   forceLogout,
   updateUser,
   updateSubscriptions,

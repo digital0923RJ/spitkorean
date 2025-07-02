@@ -9,6 +9,7 @@ const Input = React.forwardRef(({
   type = 'text',
   label,
   placeholder,
+  labelKey,
   value,
   defaultValue,
   onChange,
@@ -35,6 +36,7 @@ const Input = React.forwardRef(({
 }, ref) => {
   const [showPassword, setShowPassword] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
+  const labelText = labelKey || label;
   
   // 실제 input type (비밀번호 토글 고려)
   const inputType = type === 'password' ? (showPassword ? 'text' : 'password') : type
@@ -97,6 +99,11 @@ const Input = React.forwardRef(({
   
   return (
     <div className={clsx(fullWidth ? 'w-full' : '', containerClassName)}>
+      {labelText && (
+        <label htmlFor={id} className={clsx('block text-sm font-medium text-gray-700 mb-1', required && "after:content-['*'] after:text-error-500 after:ml-1", labelClassName)}>
+          {labelText}
+        </label>
+      )}
       {/* 라벨 */}
       {label && (
         <label 

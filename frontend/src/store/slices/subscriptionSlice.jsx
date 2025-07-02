@@ -13,6 +13,32 @@ import {
 } from '@/shared/constants/subscriptions'
 import toast from 'react-hot-toast'
 
+
+const isSuccessResponse = (response) => {
+  // Verifica se é sucesso por status HTTP (200-299) ou por campo status
+  const httpSuccess = response.status >= 200 && response.status < 300
+  const statusFieldSuccess = response.status === 'success'
+  
+  return httpSuccess || statusFieldSuccess
+}
+const isSuccessMessage = (message) => {
+  if (!message) return false
+  
+  const successKeywords = [
+    '성공적으로',
+    '완료되었습니다', 
+    '처리되었습니다',
+    'success',
+    'completed',
+    'processed',
+    'successfully'
+  ]
+  
+  return successKeywords.some(keyword => 
+    message.toLowerCase().includes(keyword.toLowerCase())
+  )
+}
+
 // 비동기 액션들
 export const fetchSubscriptionPlans = createAsyncThunk(
   'subscription/fetchPlans',
@@ -100,43 +126,194 @@ export const fetchUsageStats = createAsyncThunk(
 )
 
 export const createSubscription = createAsyncThunk(
-  'subscription/createSubscription',
+  "subscription/createSubscription",
   async (subscriptionData, { rejectWithValue, getState }) => {
     try {
-      toast.loading('구독을 처리하고 있습니다...', { 
-        id: 'subscription-process',
-        duration: Infinity 
+      console.log("📤 Data sent to createSubscription:", subscriptionData)
+      
+      toast.loading("Processing subscription...", {
+        id: "subscription-process",
+        duration: Number.POSITIVE_INFINITY,
       })
-      
-      const response = await subscriptionAPI.createSubscription(subscriptionData)
-      
-      if (response.status === 'success') {
-        const { selectedPlans } = getState().subscription
-        const planNames = selectedPlans.map(planId => {
-          const plan = getSubscriptionPlan(planId)
-          return plan ? plan.name : planId
-        }).join(', ')
-        
-        toast.success(`${planNames} 구독이 성공적으로 시작되었습니다! 🎉`, { 
-          id: 'subscription-process',
-          duration: 5000 
+
+      // Check if subscriptionData is valid
+      if (!subscriptionData) {
+        console.error("❌ subscriptionData is empty or undefined")
+        toast.error("Invalid subscription data", {
+          id: "subscription-process",
         })
-        
-        return response.data
+        return rejectWithValue("Subscription data is required")
       }
+
+      // Check required fields
+      const hasSelectedPlans = subscriptionData.selectedPlans?.length > 0 || subscriptionData.plan_id
+      const hasBillingCycle = subscriptionData.billingCycle || subscriptionData.billing_period
+
+      if (!hasSelectedPlans) {
+        console.error("❌ No plan selected")
+        toast.error("No plan was selected", {
+          id: "subscription-process",
+        })
+        return rejectWithValue("At least one plan must be selected")
+      }
+
+      if (!hasBillingCycle) {
+        console.error("❌ Billing cycle not defined")
+        toast.error("Billing cycle was not defined", {
+          id: "subscription-process",
+        })
+        return rejectWithValue("Billing cycle is required")
+      }
+
+      // Normalize data
+      const normalizedData = {
+        ...subscriptionData,
+        selectedPlans: subscriptionData.selectedPlans || [subscriptionData.plan_id],
+        billingCycle: subscriptionData.billingCycle || subscriptionData.billing_period,
+      }
+
+      console.log("📋 Normalized data:", normalizedData)
+      console.log("🚀 Calling API subscriptionAPI.createSubscription...")
       
-      toast.error(response.message || '구독 생성에 실패했습니다.', { 
-        id: 'subscription-process' 
+      const response = await subscriptionAPI.createSubscription(normalizedData)
+      
+      console.log("📥 Full API response:", response)
+      console.log("📊 Response status:", response?.status)
+      console.log("📋 Response data:", response?.data)
+      console.log("⚠️ Response message:", response?.message)
+
+      // Check if response exists
+      if (!response) {
+        console.error("❌ API response is null or undefined")
+        toast.error("Server communication error", {
+          id: "subscription-process",
+        })
+        return rejectWithValue("API response is invalid")
+      }
+
+      // ✅ FIX: Check success by HTTP status or status field
+      const isSuccess = isSuccessResponse(response)
+      const hasSuccessMessage = isSuccessMessage(response.message)
+      
+      console.log("🔍 Success check:", {
+        isSuccess,
+        hasSuccessMessage,
+        httpStatus: typeof response.status === 'number' ? response.status : 'N/A',
+        statusField: typeof response.status === 'string' ? response.status : 'N/A'
       })
-      return rejectWithValue(response.message || '구독 생성에 실패했습니다.')
+
+      // If success by HTTP status (201, 200, etc.) OR status field OR success message
+      if (isSuccess || hasSuccessMessage) {
+        const { selectedPlans } = getState().subscription
+        const planNames = selectedPlans
+          .map((planId) => {
+            const plan = getSubscriptionPlan(planId)
+            return plan ? plan.name : planId
+          })
+          .join(", ")
+
+        console.log("✅ Subscription created successfully!")
+        toast.success(`${planNames} subscription has started successfully! 🎉`, {
+          id: "subscription-process",
+          duration: 5000,
+        })
+
+        // Return response data
+        return response.data || response
+      }
+
+      // If reached here, not successful
+      console.error("❌ Response does not indicate success:", {
+        status: response.status,
+        message: response.message
+      })
+      
+      const errorMessage = response.message || "Failed to create subscription."
+      toast.error(errorMessage, {
+        id: "subscription-process",
+      })
+      
+      return rejectWithValue(errorMessage)
+
     } catch (error) {
-      toast.error('결제 처리 중 오류가 발생했습니다.', { 
-        id: 'subscription-process' 
+      console.error("💥 Error caught in createSubscription:", error)
+      console.error("📋 Error details:", {
+        message: error.message,
+        stack: error.stack,
+        response: error.response,
+        status: error.response?.status,
+        data: error.response?.data,
       })
-      return rejectWithValue(error.response?.data || error.message)
+
+      // ✅ FIX: Check if error actually indicates success
+      const errorMessage = error.message || error.response?.data?.message || 'Unknown error'
+      
+      if (isSuccessMessage(errorMessage)) {
+        console.log("🔄 Success message detected in error, treating as success")
+        
+        const { selectedPlans } = getState().subscription
+        const planNames = selectedPlans
+          .map((planId) => {
+            const plan = getSubscriptionPlan(planId)
+            return plan ? plan.name : planId
+          })
+          .join(", ")
+
+        toast.success(`${planNames} subscription has started successfully! 🎉`, {
+          id: "subscription-process",
+          duration: 5000,
+        })
+
+        return error.response?.data || { success: true, message: errorMessage }
+      }
+
+      // Check if network error
+      if (!error.response) {
+        console.error("🌐 Network error - no server response")
+        toast.error("Connection error. Please check your internet.", {
+          id: "subscription-process",
+        })
+        return rejectWithValue("Server connection error")
+      }
+
+      // Check specific status codes
+      if (error.response?.status === 401) {
+        console.error("🔐 Authentication error")
+        toast.error("Session expired. Please log in again.", {
+          id: "subscription-process",
+        })
+        return rejectWithValue("Unauthorized")
+      }
+
+      if (error.response?.status === 400) {
+        console.error("📝 Invalid data sent to API")
+        toast.error("Invalid data. Please check the information.", {
+          id: "subscription-process",
+        })
+        return rejectWithValue("Invalid data")
+      }
+
+      // ✅ FIX: Check if HTTP status indicates success even on "error"
+      if (error.response?.status >= 200 && error.response?.status < 300) {
+        console.log("🔄 HTTP status indicates success, treating as success")
+        
+        toast.success("Subscription processed successfully! 🎉", {
+          id: "subscription-process",
+          duration: 5000,
+        })
+
+        return error.response.data || { success: true }
+      }
+
+      toast.error("An error occurred while processing payment.", {
+        id: "subscription-process",
+      })
+      
+      return rejectWithValue(errorMessage)
     }
-  }
+  },
 )
+
 
 export const processPayment = createAsyncThunk(
   'subscription/processPayment',
@@ -959,6 +1136,9 @@ export const selectSelectedPlansDetails = (state) => {
 export const selectBundlePrice = (state) => {
   return calculateBundlePrice(state.subscription.selectedPlans)
 }
+
+export const selectDiscountLoading = (state) => state.subscription.discountLoading
+
 
 export const selectCanApplyBundle = (state) => {
   return state.subscription.selectedPlans.length >= 2

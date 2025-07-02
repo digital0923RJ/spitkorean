@@ -45,7 +45,6 @@ const Dashboard = () => {
   
   // 게임화 훅 사용
   const {
-    totalXP,
     currentLevel,
     currentLeague,
     streakDays,
@@ -76,6 +75,8 @@ const Dashboard = () => {
     weeklyProgress: 0,
     dailyGoalProgress: 0
   })
+  //modification removing totalxp and placing it right here
+  const { totalXP = 0 } = useGamification();
 
   // 초기 데이터 로딩
   useEffect(() => {
@@ -323,7 +324,9 @@ const Dashboard = () => {
                 <p className="text-sm font-medium text-gray-600">
                   <TUI>총 XP</TUI>
                 </p>
-                <p className="text-3xl font-bold text-gray-900">{(totalXP ?? 0).toLocaleString()}</p>
+                <p className="text-3xl font-bold text-gray-900">
+  {totalXP ? totalXP.toLocaleString() : "0"}
+</p>
                 <p className="text-xs text-gray-500 mt-1">
                   <T>레벨 {currentLevel}</T>
                 </p>

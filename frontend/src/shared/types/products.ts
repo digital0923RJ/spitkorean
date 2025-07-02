@@ -245,7 +245,7 @@ export interface ProductMeta {
  * 완전한 상품 정보 (모든 데이터 포함)
  */
 export interface CompleteProduct extends Product {
-  features: ProductFeature[];
+  detailedFeatures: ProductFeature[];
   limitations: ProductLimitation;
   stats: ProductStats;
   meta: ProductMeta;

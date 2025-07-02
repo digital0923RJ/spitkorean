@@ -23,6 +23,7 @@ import JourneyHome from '@pages/journey/JourneyHome'
 
 // 구독 및 프로필 페이지
 import Plans from '@pages/subscription/Plans'
+import Checkout from '@pages/subscription/Checkout'
 import Profile from '@pages/profile/Profile'
 import Settings from '@pages/profile/Settings'
 
@@ -37,6 +38,7 @@ import Settings from '@pages/profile/Settings'
 import { checkAuthStatus } from '@store/slices/authSlice'
 import ProtectedRoute from '@components/auth/ProtectedRoute'
 import LoadingSpinner from '@components/common/LoadingSpinner'
+import { Check } from 'lucide-react'
 
 function App() {
   const dispatch = useDispatch()
@@ -122,6 +124,11 @@ function App() {
         <PublicLayout>
           <Plans />
         </PublicLayout>
+      } />
+      <Route path="/subscription/checkout" element={
+        <PublicLayout>
+          <Checkout />
+        </PublicLayout> 
       } />
       {/*
       <Route path="/help" element={
